@@ -15,6 +15,6 @@ Phase 1：Skill 快速落地与第一轮样本验证
 - 尚未进入任务状态底座与 Resume State 实现
 
 ## 下一步
-- 使用 research-claude-code 项目本身做第一轮 Skill 样本验证
+- 使用当前项目本身做第一轮 Skill 样本验证
 - 根据验证结果修订 Skill
 - 进入 Phase 2 设计与实现

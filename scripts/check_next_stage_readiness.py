@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
-root = Path('/root/.openclaw/projects/shared/research-claude-code')
+root = Path(__file__).resolve().parent.parent
 checks = {
     'delivery_completeness': root / 'tests' / 'DELIVERY_COMPLETENESS_RESULT.md',
     'system_healthcheck': root / 'tests' / 'SYSTEM_HEALTHCHECK_RESULT.md',

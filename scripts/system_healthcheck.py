@@ -2,7 +2,7 @@
 from pathlib import Path
 import subprocess
 
-root = Path('/root/.openclaw/projects/shared/research-claude-code')
+root = Path(__file__).resolve().parent.parent
 results = []
 
 # 1. layered read

@@ -1,6 +1,6 @@
 # Skill 第一轮真实样本验证
 
-项目：`/root/.openclaw/projects/shared/research-claude-code`
+项目：`/root/.openclaw/projects/shared/wlcc-release`
 时间：2026-04-04
 样本来源：
 - `CLAUDE_CODE_RESEARCH_REPORT_FINAL.md`
@@ -146,7 +146,7 @@
 ```md
 ## Coder Handoff
 - 目标：完成 4 个 Skill 的真实样本验证，并修订其结构与规则缺口。
-- 范围：task-extract、project-state、context-compact、handoff-report 4 个 Skill；research-claude-code 项目事实文件。
+- 范围：task-extract、project-state、context-compact、handoff-report 4 个 Skill；当前发布项目事实文件。
 - 文件：skills/*/SKILL.md，README.md，STATUS.md，DECISIONS.md，INCIDENTS.md，SKILL_VALIDATION_ROUND1.md。
 - 验收标准：形成明确验证结论、缺陷清单、修订建议，并能作为 Phase 2 输入。
 ```

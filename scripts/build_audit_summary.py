@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
-root = Path('/root/.openclaw/projects/shared/research-claude-code')
+root = Path(__file__).resolve().parent.parent
 audit_dir = root / '.agent' / 'audit'
 logs_dir = root / '.agent' / 'logs'
 out_path = root / '.agent' / 'audit' / 'AUDIT_SUMMARY.md'

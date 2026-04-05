@@ -1,9 +1,0 @@
-# Resume State
-
-- taskId: task-resume-continue-demo
-- 最后目标：验证从恢复状态继续推进更新是否正常。
-- 最后成功动作：blocked 状态下已具备恢复所需信息。
-- 最后失败动作：会话中断，依赖 Resume State 恢复。
-- 当前阻塞：无
-- 建议下一步：继续推进到 done 并核对四处同步。
-- updatedAt: 2026-04-05 10:16 Asia/Shanghai

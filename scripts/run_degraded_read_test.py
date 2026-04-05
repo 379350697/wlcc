@@ -2,7 +2,7 @@
 from pathlib import Path
 import subprocess
 
-root = Path('/root/.openclaw/projects/shared/research-claude-code')
+root = Path(__file__).resolve().parent.parent
 session_file = root / 'memory' / 'session' / 'SESSION_SUMMARY.md'
 backup_file = root / 'memory' / 'session' / 'SESSION_SUMMARY.md.bak'
 out_file = root / 'tests' / 'COMPATIBILITY_DEGRADED_OUTPUT.md'

@@ -1,9 +1,0 @@
-# Resume State
-
-- taskId: task-002
-- 最后目标：建立任务状态底座与 Resume State 最小文件结构。
-- 最后成功动作：blocked 状态已在串行锁保护下完成更新。
-- 最后失败动作：此前无锁更新导致最终态不一致。
-- 当前阻塞：无
-- 建议下一步：核对 task/resume/changelog 三处结果，确认 done 为最终态。
-- updatedAt: 2026-04-04 22:55 Asia/Shanghai

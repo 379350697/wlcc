@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
-root = Path('/root/.openclaw/projects/shared/research-claude-code')
+root = Path(__file__).resolve().parent.parent
 required = [
     'ARCHITECTURE_PLAN.md',
     'MIGRATION_PLAN.md',
