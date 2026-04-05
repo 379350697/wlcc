@@ -1,0 +1,9 @@
+# Resume State
+
+- taskId: task-backup-miss-demo
+- 最后目标：验证 backup 缺失时安全写入分支的行为。
+- 最后成功动作：已初始化 backup 缺失测试样本。
+- 最后失败动作：未发生。
+- 当前阻塞：尚未执行 backup 缺失分支验证。
+- 建议下一步：执行首次写入并检查输出和备份行为。
+- updatedAt: 2026-04-05 08:52 Asia/Shanghai

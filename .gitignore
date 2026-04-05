@@ -1,0 +1,4 @@
+.agent/tmp/
+.agent/locks/
+*.pyc
+__pycache__/

@@ -1,0 +1,10 @@
+# Task State
+
+- id: task-backup-miss-demo
+- project: research-claude-code
+- goal: 验证 backup 缺失时安全写入分支的行为。
+- status: doing
+- latestResult: 已初始化 backup 缺失测试样本。
+- blocker: 尚未执行 backup 缺失分支验证。
+- nextStep: 在无既有 backup 的前提下执行写入并检查是否仍可完成更新。
+- updatedAt: 2026-04-05 08:52 Asia/Shanghai

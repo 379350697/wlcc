@@ -1,0 +1,10 @@
+# Task State
+
+- id: task-concurrent-demo
+- project: research-claude-code
+- goal: 验证连续更新时最终状态是否保持一致。
+- status: doing
+- latestResult: 连续更新测试：第 2 步 doing。
+- blocker: 无
+- nextStep: 继续更新到 done。
+- updatedAt: 2026-04-05 10:06 Asia/Shanghai
