@@ -1,0 +1,146 @@
+{
+  "version": "phase2-v2",
+  "defaultRule": {
+    "riskLevel": "L2",
+    "decision": "require-confirmation",
+    "reason": "未知动作默认要求确认。"
+  },
+  "rules": [
+    {
+      "action": "read",
+      "scope": "*",
+      "riskLevel": "L0",
+      "decision": "allow",
+      "reason": "只读操作，默认允许。"
+    },
+    {
+      "action": "summary",
+      "scope": "*",
+      "riskLevel": "L0",
+      "decision": "allow",
+      "reason": "摘要生成属于只读派生，默认允许。"
+    },
+    {
+      "action": "write-doc",
+      "scope": "external",
+      "riskLevel": "L2",
+      "decision": "require-confirmation",
+      "reason": "外部范围文档写入需要确认。"
+    },
+    {
+      "action": "write-doc",
+      "scope": "*",
+      "riskLevel": "L1",
+      "decision": "allow",
+      "reason": "项目内文档写入允许。"
+    },
+    {
+      "action": "write-state",
+      "scope": "external",
+      "riskLevel": "L2",
+      "decision": "require-confirmation",
+      "reason": "外部范围状态写入需要确认。"
+    },
+    {
+      "action": "write-state",
+      "scope": "*",
+      "targetType": "state",
+      "matchContext": {
+        "touchesCanonicalState": true
+      },
+      "riskLevel": "L2",
+      "decision": "require-confirmation",
+      "reason": "涉及 canonical state 的写入需要确认。"
+    },
+    {
+      "action": "write-state",
+      "scope": "*",
+      "riskLevel": "L1",
+      "decision": "allow",
+      "reason": "项目内状态写入允许。"
+    },
+    {
+      "action": "modify-script",
+      "scope": "release",
+      "targetType": "scripts",
+      "matchContext": {
+        "touchesReleaseRepo": true
+      },
+      "riskLevel": "L3",
+      "decision": "require-confirmation",
+      "reason": "发布仓库脚本修改需要更高等级确认。",
+      "allowIf": {
+        "userApproved": true
+      },
+      "allowDecision": "allow",
+      "allowReason": "发布仓库脚本修改已获用户批准。"
+    },
+    {
+      "action": "modify-script",
+      "scope": "*",
+      "riskLevel": "L2",
+      "decision": "require-confirmation",
+      "reason": "修改执行脚本需要确认。",
+      "allowIf": {
+        "userApproved": true
+      },
+      "allowDecision": "allow",
+      "allowReason": "高风险修改已获用户批准。"
+    },
+    {
+      "action": "modify-config",
+      "scope": "*",
+      "riskLevel": "L2",
+      "decision": "require-confirmation",
+      "reason": "修改配置需要确认。",
+      "allowIf": {
+        "userApproved": true
+      },
+      "allowDecision": "allow",
+      "allowReason": "高风险配置修改已获用户批准。"
+    },
+    {
+      "action": "delete-state",
+      "scope": "*",
+      "targetType": "state",
+      "matchContext": {
+        "isDestructive": true
+      },
+      "riskLevel": "L3",
+      "decision": "reject",
+      "reason": "破坏性状态删除默认拒绝。",
+      "allowIf": {
+        "userApproved": true,
+        "requiresConfirmation": true
+      },
+      "allowDecision": "allow",
+      "allowReason": "破坏性状态删除已显式确认。"
+    },
+    {
+      "action": "delete-state",
+      "scope": "*",
+      "riskLevel": "L3",
+      "decision": "reject",
+      "reason": "高破坏性操作默认拒绝。",
+      "allowIf": {
+        "userApproved": true,
+        "requiresConfirmation": true
+      },
+      "allowDecision": "allow",
+      "allowReason": "高破坏性操作已显式确认。"
+    },
+    {
+      "action": "overwrite-facts",
+      "scope": "*",
+      "riskLevel": "L3",
+      "decision": "reject",
+      "reason": "高破坏性操作默认拒绝。",
+      "allowIf": {
+        "userApproved": true,
+        "requiresConfirmation": true
+      },
+      "allowDecision": "allow",
+      "allowReason": "高破坏性操作已显式确认。"
+    }
+  ]
+}

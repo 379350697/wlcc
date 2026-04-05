@@ -1,0 +1,11 @@
+{
+  "decisionType": "continue-current",
+  "nextTaskId": "task-001",
+  "selectedPriority": "P1",
+  "dependencyStatus": "satisfied",
+  "overrideStatus": "none",
+  "reason": "按 priority/status/updatedAt 选出最高优先任务。",
+  "nextAction": "继续执行当前优先任务。",
+  "currentTask": "task-001",
+  "currentStatus": "doing"
+}
