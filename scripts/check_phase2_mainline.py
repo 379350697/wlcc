@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import subprocess
 
 
 root = Path(__file__).resolve().parent.parent
+
+render_views = root / 'scripts' / 'render_state_views.py'
+if render_views.exists():
+    subprocess.run(['python3', str(render_views), '--project-root', str(root)], capture_output=True, text=True)
+
+consistency = root / 'scripts' / 'check_state_view_consistency.py'
+if consistency.exists():
+    subprocess.run(['python3', str(consistency)], capture_output=True, text=True)
+
 checks = {
     'canonical_state_task': root / '.agent' / 'state' / 'tasks' / 'task-001.json',
     'state_index': root / '.agent' / 'state' / 'index.json',
