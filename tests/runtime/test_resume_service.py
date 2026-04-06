@@ -1,7 +1,12 @@
 import json
 from pathlib import Path
 
-from runtime.resume.service import build_resume_state_payload, collect_context_payload, resume_task_payload
+from runtime.resume.service import (
+    build_resume_state_payload,
+    collect_context_payload,
+    resume_real_task_flow,
+    resume_task_payload,
+)
 from runtime.supervision.core import save_json
 
 
@@ -64,3 +69,12 @@ def test_collect_context_payload_falls_back_when_task_state_json_is_invalid(tmp_
     assert payload['meta']['degradedFallback'] is True
     assert payload['task_state'][0]['source'].endswith(f'{task_id}.md')
     assert payload['task_state'][0]['content'].startswith('# Task State')
+
+
+def test_resume_real_task_flow_accepts_bare_real_task_id(tmp_path: Path):
+    seed_task(tmp_path, 'real-demo-task')
+    result = resume_real_task_flow(tmp_path, 'demo-task')
+
+    assert result['task']['taskId'] == 'real-demo-task'
+    assert result['task']['lifecycle'] == 'active'
+    assert result['supervision']['lastResumeAt']

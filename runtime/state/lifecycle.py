@@ -5,7 +5,7 @@ from pathlib import Path
 from runtime.common.io import read_json, write_json
 from runtime.common.time import now_iso
 from runtime.common.paths import RuntimePaths
-from runtime.state.store import load_task_state
+from runtime.state.store import load_task_state, resolve_task_id
 
 
 ALLOWED = {"new", "ingested", "active", "blocked", "waiting-human", "handoff", "done", "archived", "legacy"}
@@ -145,7 +145,8 @@ def transition_lifecycle(paths: RuntimePaths, task_id: str, target: str) -> tupl
     if target not in ALLOWED:
         raise SystemExit(f"invalid lifecycle target: {target}")
 
-    task = load_task_state(paths, task_id)
+    resolved_task_id = resolve_task_id(paths, task_id)
+    task = load_task_state(paths, resolved_task_id)
     current = task.get("lifecycle", "legacy")
     if target not in TRANSITIONS.get(current, set()):
         raise SystemExit(f"illegal lifecycle transition: {current} -> {target}")
@@ -164,11 +165,11 @@ def transition_lifecycle(paths: RuntimePaths, task_id: str, target: str) -> tupl
     elif target in {"ingested", "active", "blocked", "waiting-human", "handoff"} and task.get("kind") == "real":
         task["eligibleForScheduling"] = target in {"ingested", "active", "blocked", "waiting-human", "handoff"}
     task["updatedAt"] = now_iso()
-    task_path = paths.tasks_state_dir / f"{task_id}.json"
+    task_path = paths.tasks_state_dir / f"{resolved_task_id}.json"
     write_json(task_path, task)
 
-    supervision_path = paths.supervision_state_dir / f"{task_id}.json"
-    supervision = read_json(supervision_path, {"taskId": task_id})
+    supervision_path = paths.supervision_state_dir / f"{resolved_task_id}.json"
+    supervision = read_json(supervision_path, {"taskId": resolved_task_id})
     supervision["status"] = SUPERVISION_MAP[target]
     supervision["updatedAt"] = task["updatedAt"]
     supervision["stale"] = target in {"blocked", "waiting-human"}

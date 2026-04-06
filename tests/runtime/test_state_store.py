@@ -3,7 +3,7 @@ from pathlib import Path
 from runtime.common.models import TaskState
 from runtime.common.paths import RuntimePaths
 from runtime.state.lifecycle import transition_lifecycle
-from runtime.state.store import load_task_state, write_task_state
+from runtime.state.store import load_task_state, resolve_task_id, write_task_state
 
 
 def test_write_task_state_creates_index_and_task(tmp_path: Path):
@@ -50,3 +50,23 @@ def test_transition_lifecycle_updates_task_and_supervision(tmp_path: Path):
     assert supervision["status"] == "blocked"
     assert supervision["stale"] is True
     assert current == "active"
+
+
+def test_resolve_task_id_accepts_bare_real_task_alias(tmp_path: Path):
+    paths = RuntimePaths(tmp_path)
+    task = TaskState(
+        taskId="real-task-3",
+        project="demo",
+        goal="do thing",
+        status="doing",
+        kind="real",
+        lifecycle="active",
+        updatedAt="2026-04-06T12:00:00",
+        eligibleForScheduling=True,
+        isPrimaryTrack=True,
+    )
+    write_task_state(paths, task)
+
+    assert resolve_task_id(paths, "task-3") == "real-task-3"
+    loaded = load_task_state(paths, "task-3")
+    assert loaded["taskId"] == "real-task-3"

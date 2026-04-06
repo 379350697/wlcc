@@ -24,6 +24,20 @@ def task_state_path(paths: RuntimePaths, task_id: str) -> Path:
     return paths.tasks_state_dir / f"{task_id}.json"
 
 
+def candidate_task_ids(task_id: str) -> list[str]:
+    candidates = [task_id]
+    if not task_id.startswith("real-"):
+        candidates.append(f"real-{task_id}")
+    return candidates
+
+
+def resolve_task_id(paths: RuntimePaths, task_id: str) -> str:
+    for candidate in candidate_task_ids(task_id):
+        if task_state_path(paths, candidate).exists():
+            return candidate
+    raise SystemExit(f"missing task: {task_id}")
+
+
 def write_task_state(paths: RuntimePaths, task: TaskState) -> tuple[Path, Path]:
     validate_task_state(task)
 
@@ -44,9 +58,8 @@ def write_task_state(paths: RuntimePaths, task: TaskState) -> tuple[Path, Path]:
 
 
 def load_task_state(paths: RuntimePaths, task_id: str) -> dict:
-    task_path = task_state_path(paths, task_id)
+    task_path = task_state_path(paths, resolve_task_id(paths, task_id))
     task = read_json(task_path, None)
     if task is None:
         raise SystemExit(f"missing task: {task_id}")
     return task
-

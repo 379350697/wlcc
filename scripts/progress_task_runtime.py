@@ -16,6 +16,7 @@ from runtime.gates.progress import evaluate_progress_gate
 from runtime.harness.task_harness import HarnessResult
 from runtime.scheduling.next_task import build_next_task_from_state_dir
 from runtime.state.lifecycle import transition_lifecycle
+from runtime.state.store import resolve_task_id
 from runtime.supervision.core import handle_supervision_trigger
 
 
@@ -30,12 +31,13 @@ def main():
     args = parser.parse_args()
 
     paths = RuntimePaths(root)
-    task_path = paths.tasks_state_dir / f'{args.task_id}.json'
+    resolved_task_id = resolve_task_id(paths, args.task_id)
+    task_path = paths.tasks_state_dir / f'{resolved_task_id}.json'
     task = read_json(task_path, None)
     if task is None:
         raise SystemExit(f'missing task: {args.task_id}')
 
-    delivery_result = evaluate_delivery_gate(args.task_id, args.latest_result, root, task.get('kind', 'sample'))
+    delivery_result = evaluate_delivery_gate(resolved_task_id, args.latest_result, root, task.get('kind', 'sample'))
     if not delivery_result['passed']:
         raise SystemExit(f"[delivery gate] rejected: {delivery_result['reason']}")
 
@@ -61,16 +63,17 @@ def main():
     if args.lifecycle:
         current = read_json(task_path, {}).get('lifecycle')
         if current != args.lifecycle:
-            transition_lifecycle(paths, args.task_id, args.lifecycle)
+            transition_lifecycle(paths, resolved_task_id, args.lifecycle)
 
-    supervision_changed = handle_supervision_trigger(root, args.task_id, 'on_task_changed')
-    supervision_interval = handle_supervision_trigger(root, args.task_id, 'on_interval')
+    supervision_changed = handle_supervision_trigger(root, resolved_task_id, 'on_task_changed')
+    supervision_interval = handle_supervision_trigger(root, resolved_task_id, 'on_interval')
     harness_result = HarnessResult(success=True, steps=[], total_duration_ms=0, consistency_check_passed=None, failed_step=None)
 
     final_task = read_json(task_path, task)
     out = root / 'tests' / 'PROGRESS_TASK_RUNTIME_RESULT.md'
     lines = ['# PROGRESS_TASK_RUNTIME_RESULT', '', '## summary']
-    lines.append(f'- taskId: {args.task_id}')
+    lines.append(f"- requestedTaskId: {args.task_id}")
+    lines.append(f'- taskId: {resolved_task_id}')
     lines.append(f'- latestResult: {args.latest_result}')
     lines.append(f'- nextStep: {args.next_step}')
     lines.append(f'- blocker: {args.blocker}')

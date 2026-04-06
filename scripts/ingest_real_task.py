@@ -66,7 +66,7 @@ def main():
         lifecycle='ingested',
         title=args.title,
     )
-    write_task_state(paths, task)
+    task_path, index_path = write_task_state(paths, task)
 
     supervision_path = paths.supervision_state_dir / f'{task_id}.json'
     write_json(supervision_path, {
@@ -92,6 +92,8 @@ def main():
     out = project_root / 'tests' / 'INGEST_REAL_TASK_RESULT.md'
     lines = ['# INGEST_REAL_TASK_RESULT', '', '## summary']
     lines.append(f'- taskId: {task_id}')
+    lines.append(f'- taskStatePath: {task_path}')
+    lines.append(f'- indexPath: {index_path}')
     lines.append('- kind: real')
     lines.append(f'- source: {args.source}')
     lines.append(f'- executionMode: {args.execution_mode}')
@@ -100,6 +102,9 @@ def main():
     lines.append('- eligibleForScheduling: true')
     lines.append('- isPrimaryTrack: true')
     out.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+    print(f'OK: taskId {task_id}')
+    print(f'OK: wrote {task_path}')
+    print(f'OK: wrote {index_path}')
     print(f'OK: wrote {out}')
 
 

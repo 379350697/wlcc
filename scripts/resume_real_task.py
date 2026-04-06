@@ -21,7 +21,8 @@ def main():
 
     out = root / 'tests' / 'RESUME_REAL_TASK_RESULT.md'
     lines = ['# RESUME_REAL_TASK_RESULT', '', '## summary']
-    lines.append(f'- taskId: {args.task_id}')
+    lines.append(f"- requestedTaskId: {args.task_id}")
+    lines.append(f"- resolvedTaskId: {task.get('taskId', args.task_id)}")
     lines.append(f"- lifecycle: {task.get('lifecycle', 'unknown')}")
     lines.append(f"- supervisionStatus: {supervision.get('status', 'unknown')}")
     lines.append(f"- lastResumeAt: {supervision.get('lastResumeAt', 'unknown')}")

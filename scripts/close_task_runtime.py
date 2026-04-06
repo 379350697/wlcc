@@ -13,6 +13,7 @@ from runtime.common.paths import RuntimePaths
 from runtime.common.time import now_iso
 from runtime.scheduling.next_task import build_next_task_from_state_dir, write_state_views
 from runtime.state.lifecycle import transition_lifecycle
+from runtime.state.store import resolve_task_id
 from runtime.supervision.core import handle_supervision_trigger
 
 
@@ -23,7 +24,8 @@ def main():
     args = parser.parse_args()
 
     paths = RuntimePaths(root)
-    task_path = paths.tasks_state_dir / f'{args.task_id}.json'
+    resolved_task_id = resolve_task_id(paths, args.task_id)
+    task_path = paths.tasks_state_dir / f'{resolved_task_id}.json'
     task = read_json(task_path, None)
     if task is None:
         raise SystemExit(f'missing task: {args.task_id}')
@@ -37,9 +39,9 @@ def main():
     task['updatedAt'] = now_iso()
     write_json(task_path, task)
 
-    handle_supervision_trigger(root, args.task_id, 'on_completion')
-    transition_lifecycle(paths, args.task_id, 'done')
-    transition_lifecycle(paths, args.task_id, 'archived')
+    handle_supervision_trigger(root, resolved_task_id, 'on_completion')
+    transition_lifecycle(paths, resolved_task_id, 'done')
+    transition_lifecycle(paths, resolved_task_id, 'archived')
     build_next_task_from_state_dir(
         paths.tasks_state_dir,
         paths.state_dir / 'next-task.json',
@@ -51,11 +53,12 @@ def main():
     closure_note = root / '.agent' / 'logs' / 'CLOSURE_NOTE.md'
     closure_note.parent.mkdir(parents=True, exist_ok=True)
     with closure_note.open('a', encoding='utf-8') as handle:
-        handle.write(f"- {now_iso()} | task={args.task_id} | finalResult={args.final_result}\n")
+        handle.write(f"- {now_iso()} | task={resolved_task_id} | finalResult={args.final_result}\n")
 
     out = root / 'tests' / 'CLOSE_TASK_RUNTIME_RESULT.md'
     lines = ['# CLOSE_TASK_RUNTIME_RESULT', '', '## summary']
-    lines.append(f'- taskId: {args.task_id}')
+    lines.append(f"- requestedTaskId: {args.task_id}")
+    lines.append(f'- taskId: {resolved_task_id}')
     lines.append(f'- finalResult: {args.final_result}')
     lines.append('- archived: true')
     lines.append('- harnessSuccess: true')

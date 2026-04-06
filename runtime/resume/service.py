@@ -6,6 +6,8 @@ from pathlib import Path
 from runtime.context.package import package_context_payload
 from runtime.resume.context import collect_context_payload
 from runtime.resume.resume_state import build_resume_state_payload
+from runtime.common.paths import RuntimePaths
+from runtime.state.store import resolve_task_id
 from runtime.supervision.core import handle_supervision_trigger, load_json, save_json
 
 
@@ -93,6 +95,7 @@ def resume_task_payload(root: Path, task_id: str) -> dict:
 def write_resume_output(root: Path, task_id: str) -> Path:
     payload = resume_task_payload(root, task_id)
     result_path = root / 'tests' / f'{task_id}-resume-output.md'
+    result_path.parent.mkdir(parents=True, exist_ok=True)
     out = [
         '# RESUME_OUTPUT', '', '## structured_summary',
         f"- summary_source: {payload['structured_summary']['summary_source']}",
@@ -109,18 +112,18 @@ def write_resume_output(root: Path, task_id: str) -> Path:
 
 
 def resume_real_task_flow(root: Path, task_id: str) -> dict:
-    task_path = root / '.agent' / 'state' / 'tasks' / f'{task_id}.json'
-    if not task_path.exists():
-        raise SystemExit(f'missing task: {task_id}')
+    paths = RuntimePaths(root)
+    resolved_task_id = resolve_task_id(paths, task_id)
+    task_path = root / '.agent' / 'state' / 'tasks' / f'{resolved_task_id}.json'
     task = load_json(task_path, {})
     if task.get('kind') != 'real':
         raise SystemExit('resume_real_task only supports kind=real')
-    write_resume_output(root, task_id)
+    write_resume_output(root, resolved_task_id)
     task['lifecycle'] = 'active'
     task['supervisionState'] = 'active'
     task['updatedAt'] = datetime.now().isoformat(timespec='seconds')
     save_json(task_path, task)
-    supervision = handle_supervision_trigger(root, task_id, 'on_interruption_detected')
+    supervision = handle_supervision_trigger(root, resolved_task_id, 'on_interruption_detected')
     return {
         'task': task,
         'supervision': supervision,
