@@ -15,7 +15,7 @@
 
 ## retry_reorder_rollback_history
 - retryStateTasks: 1
-- latestFailureDecision: rollback
+- latestFailureDecision: wait-confirmation
 - matchedEvents: 0
 - rollbackEvents: 0
 
@@ -24,8 +24,8 @@
 - realFailureClusterCount: 0
 
 ## system_health_summary
-- heartbeatHistoryCount: 59
-- heartbeatRequiresHumanCount: 12
-- eventCount: 81
+- heartbeatHistoryCount: 3
+- heartbeatRequiresHumanCount: 2
+- eventCount: 84
 - checkFailureCount: 5
 - systemHealthcheck: - PASS

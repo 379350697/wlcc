@@ -1,0 +1,46 @@
+{
+  "selectedTaskId": "demo-long-chain-autonomy",
+  "selectionReasons": [
+    "status-todo",
+    "missing-state-fallback"
+  ],
+  "candidateCount": 2,
+  "conflictPolicy": {
+    "priority": [
+      "next-task",
+      "current-task",
+      "doing",
+      "override",
+      "todo",
+      "blocked"
+    ],
+    "selectedBy": "score-based-priority"
+  },
+  "loopResume": {
+    "lastTaskId": "task-phase2-demo",
+    "lastStep": 1,
+    "decisionType": "continue-current",
+    "stopType": "stage-complete-stop",
+    "stopReason": "current stage boundary reached",
+    "riskEscalation": "continue",
+    "failureControl": "continue"
+  },
+  "candidates": [
+    {
+      "taskId": "demo-long-chain-autonomy",
+      "score": 20,
+      "reasons": [
+        "status-todo",
+        "missing-state-fallback"
+      ]
+    },
+    {
+      "taskId": "local-task-001",
+      "score": 20,
+      "reasons": [
+        "status-todo",
+        "missing-state-fallback"
+      ]
+    }
+  ]
+}

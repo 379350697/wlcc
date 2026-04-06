@@ -1,9 +1,9 @@
 # NEXT_TASK
 
-- currentTask: real-task-runtime-mainline
+- currentTask: real-真实任务接管机制层-p0-启动任务
 - currentStatus: doing
 - decisionType: continue-current
-- nextTaskId: real-task-runtime-mainline
+- nextTaskId: real-真实任务接管机制层-p0-启动任务
 - selectedPriority: P0
 - dependencyStatus: satisfied
 - overrideStatus: none

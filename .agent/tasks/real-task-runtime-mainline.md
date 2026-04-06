@@ -7,7 +7,7 @@
 - priority: P0
 - dependencies: []
 - override: none
-- latestResult: Task 5.1 heartbeat 已接入正式 runtime。
+- latestResult: Task 3.1 已进入统一推进入口验证。
 - blocker: 无
-- nextStep: 继续推进 supervisor logs。
-- updatedAt: 2026-04-06 18:02 Asia/Shanghai
+- nextStep: 继续推进 Task 3.2 resume_real_task.py。
+- updatedAt: 2026-04-06T23:21:02

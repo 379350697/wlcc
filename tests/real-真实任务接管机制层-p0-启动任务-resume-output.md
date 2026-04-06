@@ -26,11 +26,11 @@
 
 ### event_log_tail
 ## Event
-- time: 2026-04-05 21:06 Asia/Shanghai
-- type: bulk-resume
-- target: task-phase2-e2e-single
-- result: success
-- note: bulk resume output generated
+- time: 2026-04-05 19:31 Asia/Shanghai
+- type: system-healthcheck
+- target: system
+- result: pass
+- note: system healthcheck executed
 ## Event
 - time: 2026-04-05 19:31 Asia/Shanghai
 - type: system-healthcheck
@@ -43,7 +43,7 @@
   "facts": [
     {
       "source": "README.md",
-      "content": "# wlcc\n\n一个面向 OpenClaw 的**长链自治（Long Chain Autonomy）产品化仓库**。\n\n这不是单一 Skill 的提示词集合，也不是一堆零散脚本的研究目录。\n当前仓库已经整理成以下正式形态：\n\n- **总 Skill 统一入口**\n- **基建层 / Runtime 承载真实能力**\n- **原子模块内聚复用**\n- **完整 Demo 与验收测试包**\n- **可直接进入部署、演示、回归验证流程**\n\n---\n\n## 一、这是什么\n\n`wlcc` 是一套面向 OpenClaw 的长链任务执行与恢复方案，目标是把“任务推进、状态恢复、风险治理、失败处理、hear"
+      "content": "# wlcc\n\n一个面向 OpenClaw 的**长链自治（Long Chain Autonomy）产品化仓库**。\n\n这不是单一 Skill 的提示词集合，也不是一堆零散脚本的研究目录。\n当前仓库已经整理成以下正式形态：\n\n- **entry skill 统一入口**\n- **runtime core 承载真实能力**\n- **sidecar services 承担视图与汇总**\n- **原子模块内聚复用**\n- **dev-only assets 保留研发与验证材料**\n- **可直接进入部署、演示、回归验证流程**\n\n---\n\n## 一、这是什么\n\n`wlcc` 是一套面向 OpenCl"
     },
     {
       "source": "STATUS.md",
@@ -55,7 +55,7 @@
     },
     {
       "source": "TASKS.md",
-      "content": "# TASKS\n\n## Active\n### real-真实任务接管机制层-p0-启动任务\n- 目标：验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。\n- 当前状态：doing\n- 优先级：P0\n- 阻塞项：无\n- 下一步：进入 lifecycle=ingested，并等待正式推进。\n- 最近结果：真实任务已接入 runtime。\n\n### task-001\n- 目标：继续推进整体项目收口与下一阶段增强。\n- 当前状态：doing\n- 优先级：P1\n- 阻塞项：缺少 release 侧 canonical state 运行态产物。\n-"
+      "content": "# TASKS\n\n## Active\n### demo-schema-check\n- 目标：demo-schema-check\n- 当前状态：todo\n- 优先级：P0\n- 阻塞项：无\n- 下一步：check\n- 最近结果：init\n\n### real-lifecycle-check\n- 目标：lifecycle check\n- 当前状态：doing\n- 优先级：P0\n- 阻塞项：无\n- 下一步：move active\n- 最近结果：created\n\n### real-lifecycle-runtime-integration\n- 目标：验证 ingest 与 lifecycle 迁移逻辑已接"
     },
     {
       "source": "INCIDENTS.md",
@@ -67,7 +67,7 @@
       "source": ".agent/state/tasks/real-真实任务接管机制层-p0-启动任务.json",
       "content": {
         "taskId": "real-真实任务接管机制层-p0-启动任务",
-        "project": "wlcc-release",
+        "project": "wlcc",
         "goal": "验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。",
         "status": "doing",
         "priority": "P0",
@@ -78,7 +78,7 @@
         "nextStep": "进入 lifecycle=ingested，并等待正式推进。",
         "lastSuccess": "真实任务 ingest 已完成。",
         "lastFailure": "无",
-        "updatedAt": "2026-04-06 17:59 Asia/Shanghai",
+        "updatedAt": "2026-04-06T23:21:00",
         "kind": "real",
         "source": "user-directive",
         "executionMode": "live",
@@ -92,29 +92,29 @@
     },
     {
       "source": ".agent/tasks/real-真实任务接管机制层-p0-启动任务.md",
-      "content": "# Task State\n\n- id: real-真实任务接管机制层-p0-启动任务\n- project: wlcc-release\n- goal: 验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。\n- status: doing\n- priority: P0\n- dependencies: []\n- override: none\n- latestResult: 真实任务已接入 runtime。\n- blocker: 无\n- nextStep: 进入 lifecycle=ingested，并等待正式推进。\n- updatedAt: 2"
+      "content": "# Task State\n\n- id: real-真实任务接管机制层-p0-启动任务\n- project: wlcc\n- goal: 验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。\n- status: doing\n- priority: P0\n- dependencies: []\n- override: none\n- latestResult: 真实任务已接入 runtime。\n- blocker: 无\n- nextStep: 进入 lifecycle=ingested，并等待正式推进。\n- updatedAt: 2026-04-0"
     },
     {
       "source": ".agent/resume/real-真实任务接管机制层-p0-启动任务-resume.md",
-      "content": "# Resume State\n\n- taskId: real-真实任务接管机制层-p0-启动任务\n- 最后目标：验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。\n- 最后成功动作：真实任务 ingest 已完成。\n- 最后失败动作：无\n- 当前阻塞：无\n- 建议下一步：进入 lifecycle=ingested，并等待正式推进。\n- updatedAt: 2026-04-06 17:59 Asia/Shanghai"
+      "content": "# Resume State\n\n- taskId: real-真实任务接管机制层-p0-启动任务\n- 最后目标：验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。\n- 最后成功动作：真实任务 ingest 已完成。\n- 最后失败动作：无\n- 当前阻塞：无\n- 建议下一步：进入 lifecycle=ingested，并等待正式推进。\n- updatedAt: 2026-04-06T23:21:00"
     },
     {
       "source": ".agent/state/next-task.json",
       "content": {
         "decisionType": "continue-current",
-        "nextTaskId": "real-真实任务接管机制层-p0-启动任务",
+        "nextTaskId": "real-task-runtime-mainline",
         "selectedPriority": "P0",
         "dependencyStatus": "satisfied",
         "overrideStatus": "none",
         "reason": "按 priority/status/updatedAt 选出最高优先任务。",
         "nextAction": "继续执行当前优先任务。",
-        "currentTask": "real-真实任务接管机制层-p0-启动任务",
+        "currentTask": "real-task-runtime-mainline",
         "currentStatus": "doing"
       }
     },
     {
       "source": ".agent/NEXT_TASK.md",
-      "content": "# NEXT_TASK\n\n- currentTask: real-真实任务接管机制层-p0-启动任务\n- currentStatus: doing\n- decisionType: continue-current\n- nextTaskId: real-真实任务接管机制层-p0-启动任务\n- selectedPriority: P0\n- dependencyStatus: satisfied\n- overrideStatus: none\n- reason: 按 priority/status/updatedAt 选出最高优先任务。\n- nextAction: 继续执行当前优先任务。"
+      "content": "# NEXT_TASK\n\n- currentTask: real-task-runtime-mainline\n- currentStatus: doing\n- decisionType: continue-current\n- nextTaskId: real-task-runtime-mainline\n- selectedPriority: P0\n- dependencyStatus: satisfied\n- overrideStatus: none\n- reason: 按 priority/status/updatedAt 选出最高优先任务。\n- nextAction: 继续执行当前优先任务"
     }
   ],
   "summary": [
@@ -149,16 +149,20 @@
       "memory/session/SESSION_SUMMARY.md",
       "FINAL_DELIVERY_SUMMARY.md"
     ],
-    "degradedFallback": false
+    "degradedFallback": false,
+    "taskKind": "real"
   }
+}
+
+## runtime_meta
+{
+  "taskKind": "real"
 }
 
 ## resume_state
 {
   "selectedTaskId": "real-真实任务接管机制层-p0-启动任务",
   "selectionReasons": [
-    "matches-next-task",
-    "matches-current-task",
     "status-doing"
   ],
   "candidateCount": 1,
@@ -185,10 +189,8 @@
   "candidates": [
     {
       "taskId": "real-真实任务接管机制层-p0-启动任务",
-      "score": 240,
+      "score": 50,
       "reasons": [
-        "matches-next-task",
-        "matches-current-task",
         "status-doing"
       ]
     }
@@ -198,7 +200,7 @@
 ## task_state_json
 {
   "taskId": "real-真实任务接管机制层-p0-启动任务",
-  "project": "wlcc-release",
+  "project": "wlcc",
   "goal": "验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。",
   "status": "doing",
   "priority": "P0",
@@ -209,7 +211,7 @@
   "nextStep": "进入 lifecycle=ingested，并等待正式推进。",
   "lastSuccess": "真实任务 ingest 已完成。",
   "lastFailure": "无",
-  "updatedAt": "2026-04-06 17:59 Asia/Shanghai",
+  "updatedAt": "2026-04-06T23:21:00",
   "kind": "real",
   "source": "user-directive",
   "executionMode": "live",
@@ -225,7 +227,7 @@
 # Task State
 
 - id: real-真实任务接管机制层-p0-启动任务
-- project: wlcc-release
+- project: wlcc
 - goal: 验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。
 - status: doing
 - priority: P0
@@ -234,7 +236,7 @@
 - latestResult: 真实任务已接入 runtime。
 - blocker: 无
 - nextStep: 进入 lifecycle=ingested，并等待正式推进。
-- updatedAt: 2026-04-06 17:59 Asia/Shanghai
+- updatedAt: 2026-04-06T23:21:00
 
 ## resume_view
 # Resume State
@@ -245,12 +247,52 @@
 - 最后失败动作：无
 - 当前阻塞：无
 - 建议下一步：进入 lifecycle=ingested，并等待正式推进。
-- updatedAt: 2026-04-06 17:59 Asia/Shanghai
+- updatedAt: 2026-04-06T23:21:00
 
 ## tasks_view
 # TASKS
 
 ## Active
+### demo-schema-check
+- 目标：demo-schema-check
+- 当前状态：todo
+- 优先级：P0
+- 阻塞项：无
+- 下一步：check
+- 最近结果：init
+
+### real-lifecycle-check
+- 目标：lifecycle check
+- 当前状态：doing
+- 优先级：P0
+- 阻塞项：无
+- 下一步：move active
+- 最近结果：created
+
+### real-lifecycle-runtime-integration
+- 目标：验证 ingest 与 lifecycle 迁移逻辑已接通。
+- 当前状态：doing
+- 优先级：P0
+- 阻塞项：无
+- 下一步：进入 lifecycle=ingested，并等待正式推进。
+- 最近结果：真实任务已接入 runtime。
+
+### real-schema-check
+- 目标：real-schema-check
+- 当前状态：todo
+- 优先级：P1
+- 阻塞项：无
+- 下一步：check
+- 最近结果：init
+
+### real-task-runtime-mainline
+- 目标：按 REAL_TASK_RUNTIME_FINAL_PLAN/REAL_TASK_RUNTIME_FINAL_TASKS 从 P0 开始补齐真实任务接管机制层，并按既定顺序从 1 做到 9。
+- 当前状态：doing
+- 优先级：P0
+- 阻塞项：无
+- 下一步：继续推进 Task 3.2 resume_real_task.py。
+- 最近结果：Task 3.1 已进入统一推进入口验证。
+
 ### real-真实任务接管机制层-p0-启动任务
 - 目标：验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。
 - 当前状态：doing
@@ -340,27 +382,42 @@
 - 最近结果：已接入 state store + next-task v2。
 
 ## Done
+### real-close-runtime-debug-target
+- 目标：debug close flow
+- 当前状态：done
+- 优先级：P1
+- 阻塞项：无
+- 下一步：archive
+- 最近结果：真实任务机制层 closure 已完成。
+
+### real-close-runtime-final-target
+- 目标：验证 close_task_runtime 收口链。
+- 当前状态：done
+- 优先级：P1
+- 阻塞项：无
+- 下一步：archive
+- 最近结果：真实任务机制层 closure 已完成。
 
 ## next_task_state
 {
   "decisionType": "continue-current",
-  "nextTaskId": "real-真实任务接管机制层-p0-启动任务",
+  "nextTaskId": "real-task-runtime-mainline",
   "selectedPriority": "P0",
   "dependencyStatus": "satisfied",
   "overrideStatus": "none",
   "reason": "按 priority/status/updatedAt 选出最高优先任务。",
   "nextAction": "继续执行当前优先任务。",
-  "currentTask": "real-真实任务接管机制层-p0-启动任务",
+  "currentTask": "real-task-runtime-mainline",
   "currentStatus": "doing"
 }
 
 ## next_task_view
 # NEXT_TASK
 
-- currentTask: real-真实任务接管机制层-p0-启动任务
+- currentTask: real-task-runtime-mainline
 - currentStatus: doing
 - decisionType: continue-current
-- nextTaskId: real-真实任务接管机制层-p0-启动任务
+- nextTaskId: real-task-runtime-mainline
 - selectedPriority: P0
 - dependencyStatus: satisfied
 - overrideStatus: none

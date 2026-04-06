@@ -1,0 +1,22 @@
+{
+  "tasks": [
+    {
+      "taskId": "demo-dependent",
+      "status": "todo",
+      "priority": "P0",
+      "dependencies": [
+        "demo-prereq"
+      ],
+      "override": "none",
+      "updatedAt": "2026-04-06 14:03 Asia/Shanghai"
+    },
+    {
+      "taskId": "demo-prereq",
+      "status": "todo",
+      "priority": "P2",
+      "dependencies": [],
+      "override": "force-hold",
+      "updatedAt": "2026-04-06 14:04 Asia/Shanghai"
+    }
+  ]
+}

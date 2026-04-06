@@ -37,3 +37,84 @@
 - 2026-04-06 18:02:05 | task=real-task-runtime-mainline | trigger=on_interval | stale=true
 - 2026-04-06 18:02:05 | task=real-task-runtime-mainline | trigger=on_completion | action=handoff
 - 2026-04-06 18:02:06 | task=real-close-runtime-final-target | trigger=on_completion | action=handoff
+- 2026-04-06 20:19:50 | task=real-task-runtime-mainline | trigger=on_task_ingested | status=active
+- 2026-04-06 20:19:51 | task=real-task-runtime-mainline | trigger=on_task_changed | status=blocked | verdict=ALLOW
+- 2026-04-06 20:19:51 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06 20:19:51 | task=real-task-runtime-mainline | trigger=on_interval | stale=true
+- 2026-04-06 20:19:52 | task=real-task-runtime-mainline | trigger=on_completion | action=handoff
+- 2026-04-06 20:44:34 | task=real-task-runtime-mainline | trigger=on_task_ingested | status=active
+- 2026-04-06 20:44:34 | task=real-task-runtime-mainline | trigger=on_task_changed | status=blocked | verdict=ALLOW
+- 2026-04-06 20:44:34 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06 20:44:35 | task=real-task-runtime-mainline | trigger=on_interval | stale=true
+- 2026-04-06 20:44:35 | task=real-task-runtime-mainline | trigger=on_completion | action=handoff
+- 2026-04-06T20:49:59 | task=real-task-runtime-mainline | trigger=on_task_ingested | status=active
+- 2026-04-06T20:49:59 | task=real-task-runtime-mainline | trigger=on_task_changed | status=blocked | verdict=ALLOW
+- 2026-04-06T20:49:59 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T20:49:59 | task=real-task-runtime-mainline | trigger=on_interval | stale=true
+- 2026-04-06T20:50:00 | task=real-task-runtime-mainline | trigger=on_completion | action=handoff
+- 2026-04-06T21:17:52 | task=real-task-runtime-mainline | trigger=on_task_ingested | status=active
+- 2026-04-06T21:17:53 | task=real-task-runtime-mainline | trigger=on_task_changed | status=blocked | verdict=ALLOW
+- 2026-04-06T21:17:53 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T21:17:54 | task=real-task-runtime-mainline | trigger=on_interval | stale=true
+- 2026-04-06T21:17:54 | task=real-task-runtime-mainline | trigger=on_completion | action=handoff
+- 2026-04-06T22:44:42 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T22:44:42 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T22:45:24 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T22:45:24 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T22:45:24 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T22:45:24 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T22:45:56 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T22:45:56 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T22:46:21 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T22:46:21 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T22:46:40 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T22:46:40 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T22:57:54 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T22:57:54 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T22:57:54 | task=real-close-runtime-final-target | trigger=on_completion | action=handoff
+- 2026-04-06T22:58:20 | task=real-close-runtime-final-target | trigger=on_completion | action=handoff
+- 2026-04-06T22:58:40 | task=real-close-runtime-debug-target | trigger=on_completion | action=handoff
+- 2026-04-06T22:58:59 | task=real-close-runtime-debug-target | trigger=on_completion | action=handoff
+- 2026-04-06T22:58:59 | task=real-close-runtime-final-target | trigger=on_completion | action=handoff
+- 2026-04-06T22:59:32 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T22:59:32 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T22:59:32 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T22:59:32 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T22:59:33 | task=real-close-runtime-final-target | trigger=on_completion | action=handoff
+- 2026-04-06T23:05:27 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T23:05:27 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T23:05:28 | task=real-close-runtime-final-target | trigger=on_completion | action=handoff
+- 2026-04-06T23:12:21 | task=real-task-runtime-mainline | trigger=on_task_ingested | status=active
+- 2026-04-06T23:12:21 | task=real-task-runtime-mainline | trigger=on_task_changed | status=blocked | verdict=ALLOW
+- 2026-04-06T23:12:21 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T23:12:21 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T23:12:21 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T23:12:21 | task=real-task-runtime-mainline | trigger=on_completion | action=handoff
+- 2026-04-06T23:16:58 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T23:18:33 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T23:18:33 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T23:18:34 | task=real-close-runtime-final-target | trigger=on_completion | action=handoff
+- 2026-04-06T23:18:34 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T23:18:35 | task=real-task-runtime-mainline | trigger=on_task_ingested | status=active
+- 2026-04-06T23:18:35 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T23:18:35 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T23:18:35 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T23:18:35 | task=real-task-runtime-mainline | trigger=on_completion | action=handoff
+- 2026-04-06T23:19:26 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T23:19:26 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T23:19:27 | task=real-close-runtime-final-target | trigger=on_completion | action=handoff
+- 2026-04-06T23:19:28 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T23:19:28 | task=real-task-runtime-mainline | trigger=on_task_ingested | status=active
+- 2026-04-06T23:19:28 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T23:19:28 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T23:19:28 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T23:19:28 | task=real-task-runtime-mainline | trigger=on_completion | action=handoff
+- 2026-04-06T23:21:00 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T23:21:00 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T23:21:01 | task=real-close-runtime-final-target | trigger=on_completion | action=handoff
+- 2026-04-06T23:21:02 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T23:21:02 | task=real-task-runtime-mainline | trigger=on_task_ingested | status=active
+- 2026-04-06T23:21:02 | task=real-task-runtime-mainline | trigger=on_task_changed | status=active | verdict=ALLOW
+- 2026-04-06T23:21:02 | task=real-task-runtime-mainline | trigger=on_interruption_detected | action=resume
+- 2026-04-06T23:21:02 | task=real-task-runtime-mainline | trigger=on_interval | stale=false
+- 2026-04-06T23:21:02 | task=real-task-runtime-mainline | trigger=on_completion | action=handoff

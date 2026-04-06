@@ -1,0 +1,10 @@
+# FAILURE_CONTROL_RESULT
+
+## summary
+- taskId: test-risk
+- decision: wait-confirmation
+- reason: high risk operation
+- nextAction: wait-human
+- requiresHuman: true
+- recoveryLevel: 0
+- circuitState: CLOSED

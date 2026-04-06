@@ -2,7 +2,7 @@
   "tasks": [
     {
       "taskId": "real-schema-check",
-      "project": "wlcc-release",
+      "project": "wlcc",
       "goal": "real-schema-check",
       "status": "todo",
       "priority": "P1",
@@ -26,7 +26,7 @@
     },
     {
       "taskId": "demo-schema-check",
-      "project": "wlcc-release",
+      "project": "wlcc",
       "goal": "demo-schema-check",
       "status": "todo",
       "priority": "P0",

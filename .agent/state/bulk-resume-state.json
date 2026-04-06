@@ -1,7 +1,7 @@
 {
-  "selectedTaskId": "task-001",
+  "selectedTaskId": "demo-schema-check",
   "selectionReasons": [
-    "status-doing"
+    "status-todo"
   ],
   "candidateCount": 3,
   "conflictPolicy": {
@@ -26,25 +26,21 @@
   },
   "candidates": [
     {
-      "taskId": "task-001",
-      "score": 50,
+      "taskId": "demo-schema-check",
+      "score": 20,
       "reasons": [
-        "status-doing"
+        "status-todo"
       ]
     },
     {
-      "taskId": "task-bulk-a",
-      "score": 50,
-      "reasons": [
-        "status-doing"
-      ]
+      "taskId": "real-close-runtime-debug-target",
+      "score": 0,
+      "reasons": []
     },
     {
-      "taskId": "task-bulk-b",
-      "score": 5,
-      "reasons": [
-        "status-blocked"
-      ]
+      "taskId": "real-close-runtime-final-target",
+      "score": 0,
+      "reasons": []
     }
   ]
 }

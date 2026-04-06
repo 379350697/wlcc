@@ -38,8 +38,8 @@
 - 当前状态：doing
 - 优先级：P0
 - 阻塞项：无
-- 下一步：继续推进 supervisor logs。
-- 最近结果：Task 5.1 heartbeat 已接入正式 runtime。
+- 下一步：继续推进 Task 3.2 resume_real_task.py。
+- 最近结果：Task 3.1 已进入统一推进入口验证。
 
 ### real-真实任务接管机制层-p0-启动任务
 - 目标：验证真实任务可一跳接入 runtime，并自动生成 state/view/next-task/resume。
@@ -130,6 +130,14 @@
 - 最近结果：已接入 state store + next-task v2。
 
 ## Done
+### real-close-runtime-debug-target
+- 目标：debug close flow
+- 当前状态：done
+- 优先级：P1
+- 阻塞项：无
+- 下一步：archive
+- 最近结果：真实任务机制层 closure 已完成。
+
 ### real-close-runtime-final-target
 - 目标：验证 close_task_runtime 收口链。
 - 当前状态：done

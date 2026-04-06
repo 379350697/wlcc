@@ -1,0 +1,7 @@
+{
+  "taskId": "test-retry-l1",
+  "state": "CLOSED",
+  "consecutiveFailures": 1,
+  "lastFailureAt": "2026-04-06T21:17:55",
+  "halfOpenAttempts": 0
+}

@@ -1,0 +1,20 @@
+{
+  "tasks": [
+    {
+      "taskId": "demo-a",
+      "status": "doing",
+      "priority": "P1",
+      "dependencies": [],
+      "override": "none",
+      "updatedAt": "2026-04-06 14:01 Asia/Shanghai"
+    },
+    {
+      "taskId": "demo-force",
+      "status": "todo",
+      "priority": "P3",
+      "dependencies": [],
+      "override": "force-run",
+      "updatedAt": "2026-04-06 14:02 Asia/Shanghai"
+    }
+  ]
+}

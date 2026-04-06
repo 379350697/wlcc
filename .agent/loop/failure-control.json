@@ -1,7 +1,9 @@
 {
-  "taskId": "task-phase2-demo",
-  "decision": "rollback",
-  "reason": "need rollback now",
-  "nextAction": "rollback",
-  "requiresHuman": true
+  "taskId": "test-risk",
+  "decision": "wait-confirmation",
+  "reason": "high risk operation",
+  "nextAction": "wait-human",
+  "requiresHuman": true,
+  "recoveryLevel": 0,
+  "circuitState": "CLOSED"
 }

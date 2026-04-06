@@ -1,0 +1,11 @@
+{
+  "taskId": "real-close-runtime-debug-target",
+  "status": "archived",
+  "lastHeartbeatAt": null,
+  "lastResumeAt": null,
+  "lastHandoffAt": "2026-04-06T22:58:58",
+  "stale": false,
+  "updatedAt": "2026-04-06T22:58:59",
+  "taskKind": "real",
+  "scope": "real-task-first"
+}

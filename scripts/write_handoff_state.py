@@ -8,7 +8,7 @@ root = Path(__file__).resolve().parent.parent
 
 
 def now_text():
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.now().isoformat(timespec='seconds')  # ISO 8601 统一格式
 
 
 def main():

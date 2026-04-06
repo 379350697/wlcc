@@ -2,7 +2,7 @@
   "facts": [
     {
       "source": "README.md",
-      "content": "# wlcc\n\n一个面向 OpenClaw 的可部署项目原型仓库，用于快速恢复并继续工作。\n\n## 包含内容\n- 实施文档：架构、迁移、回滚\n- Skills：4 个可复用 Skill 定义与打包产物\n- 项目事实文件：README / STATUS / DECISIONS / TASKS / INCIDENTS\n- 状态底座：Task State / Resume State / CHANGELOG / 审计文件\n- 脚本：安全写入、状态更新、分层读取、风险检查、审计汇总、健康检查、交付检查\n- 测试与验证材料\n\n## 快速开始\n1. 确保系统有 `bash` 和 `python3`\n2. "
+      "content": "# wlcc\n\n一个面向 OpenClaw 的**长链自治（Long Chain Autonomy）产品化仓库**。\n\n这不是单一 Skill 的提示词集合，也不是一堆零散脚本的研究目录。\n当前仓库已经整理成以下正式形态：\n\n- **entry skill 统一入口**\n- **runtime core 承载真实能力**\n- **sidecar services 承担视图与汇总**\n- **原子模块内聚复用**\n- **dev-only assets 保留研发与验证材料**\n- **可直接进入部署、演示、回归验证流程**\n\n---\n\n## 一、这是什么\n\n`wlcc` 是一套面向 OpenCl"
     },
     {
       "source": "STATUS.md",
@@ -14,7 +14,7 @@
     },
     {
       "source": "TASKS.md",
-      "content": "# TASKS\n\n## Active\n### task-001\n- 目标：继续推进整体项目收口与下一阶段增强。\n- 当前状态：doing\n- 优先级：P1\n- 阻塞项：缺少 release 侧 canonical state 运行态产物。\n- 下一步：补齐 state/view/next-task 并重跑 release 检查。\n- 最近结果：发布版已同步 Phase 2 主链脚本、文档与验证材料。\n\n## Done"
+      "content": "# TASKS\n\n## Active\n### demo-schema-check\n- 目标：demo-schema-check\n- 当前状态：todo\n- 优先级：P0\n- 阻塞项：无\n- 下一步：check\n- 最近结果：init\n\n### real-lifecycle-check\n- 目标：lifecycle check\n- 当前状态：doing\n- 优先级：P0\n- 阻塞项：无\n- 下一步：move active\n- 最近结果：created\n\n### real-lifecycle-runtime-integration\n- 目标：验证 ingest 与 lifecycle 迁移逻辑已接"
     },
     {
       "source": "INCIDENTS.md",
@@ -52,19 +52,19 @@
       "source": ".agent/state/next-task.json",
       "content": {
         "decisionType": "continue-current",
-        "nextTaskId": "task-001",
-        "selectedPriority": "P1",
+        "nextTaskId": "real-真实任务接管机制层-p0-启动任务",
+        "selectedPriority": "P0",
         "dependencyStatus": "satisfied",
         "overrideStatus": "none",
         "reason": "按 priority/status/updatedAt 选出最高优先任务。",
         "nextAction": "继续执行当前优先任务。",
-        "currentTask": "task-001",
+        "currentTask": "real-真实任务接管机制层-p0-启动任务",
         "currentStatus": "doing"
       }
     },
     {
       "source": ".agent/NEXT_TASK.md",
-      "content": "# NEXT_TASK\n\n- currentTask: task-001\n- currentStatus: doing\n- decisionType: continue-current\n- nextTaskId: task-001\n- selectedPriority: P1\n- dependencyStatus: satisfied\n- overrideStatus: none\n- reason: 按 priority/status/updatedAt 选出最高优先任务。\n- nextAction: 继续执行当前优先任务。"
+      "content": "# NEXT_TASK\n\n- currentTask: real-真实任务接管机制层-p0-启动任务\n- currentStatus: doing\n- decisionType: continue-current\n- nextTaskId: real-真实任务接管机制层-p0-启动任务\n- selectedPriority: P0\n- dependencyStatus: satisfied\n- overrideStatus: none\n- reason: 按 priority/status/updatedAt 选出最高优先任务。\n- nextAction: 继续执行当前优先任务。"
     }
   ],
   "summary": [
@@ -99,6 +99,7 @@
       "memory/session/SESSION_SUMMARY.md",
       "FINAL_DELIVERY_SUMMARY.md"
     ],
-    "degradedFallback": false
+    "degradedFallback": false,
+    "taskKind": "unknown"
   }
 }

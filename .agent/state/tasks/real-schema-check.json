@@ -1,6 +1,6 @@
 {
   "taskId": "real-schema-check",
-  "project": "wlcc-release",
+  "project": "wlcc",
   "goal": "real-schema-check",
   "status": "todo",
   "priority": "P1",

@@ -26,11 +26,11 @@
 
 ### event_log_tail
 ## Event
-- time: 2026-04-05 21:06 Asia/Shanghai
-- type: bulk-resume
-- target: task-phase2-e2e-single
-- result: success
-- note: bulk resume output generated
+- time: 2026-04-05 19:31 Asia/Shanghai
+- type: system-healthcheck
+- target: system
+- result: pass
+- note: system healthcheck executed
 ## Event
 - time: 2026-04-05 19:31 Asia/Shanghai
 - type: system-healthcheck
@@ -43,7 +43,7 @@
   "facts": [
     {
       "source": "README.md",
-      "content": "# wlcc\n\n一个面向 OpenClaw 的**长链自治（Long Chain Autonomy）产品化仓库**。\n\n这不是单一 Skill 的提示词集合，也不是一堆零散脚本的研究目录。\n当前仓库已经整理成以下正式形态：\n\n- **总 Skill 统一入口**\n- **基建层 / Runtime 承载真实能力**\n- **原子模块内聚复用**\n- **完整 Demo 与验收测试包**\n- **可直接进入部署、演示、回归验证流程**\n\n---\n\n## 一、这是什么\n\n`wlcc` 是一套面向 OpenClaw 的长链任务执行与恢复方案，目标是把“任务推进、状态恢复、风险治理、失败处理、hear"
+      "content": "# wlcc\n\n一个面向 OpenClaw 的**长链自治（Long Chain Autonomy）产品化仓库**。\n\n这不是单一 Skill 的提示词集合，也不是一堆零散脚本的研究目录。\n当前仓库已经整理成以下正式形态：\n\n- **entry skill 统一入口**\n- **runtime core 承载真实能力**\n- **sidecar services 承担视图与汇总**\n- **原子模块内聚复用**\n- **dev-only assets 保留研发与验证材料**\n- **可直接进入部署、演示、回归验证流程**\n\n---\n\n## 一、这是什么\n\n`wlcc` 是一套面向 OpenCl"
     },
     {
       "source": "STATUS.md",
@@ -78,15 +78,15 @@
         "nextStep": "继续推进 Task 3.2 resume_real_task.py。",
         "lastSuccess": "已完成 Task 3.1 progress_task_runtime.py。",
         "lastFailure": "之前主任务未回填 real runtime 元字段，导致 resume_real_task 拒绝。",
-        "updatedAt": "2026-04-06 18:02 Asia/Shanghai",
+        "updatedAt": "2026-04-06T23:21:01",
         "kind": "real",
         "source": "user-directive",
         "executionMode": "live",
         "ownerContext": "discord-direct",
-        "supervisionState": "active",
+        "supervisionState": "blocked",
         "eligibleForScheduling": true,
         "isPrimaryTrack": true,
-        "lifecycle": "active",
+        "lifecycle": "blocked",
         "title": "real-task-runtime-mainline"
       }
     },
@@ -102,19 +102,19 @@
       "source": ".agent/state/next-task.json",
       "content": {
         "decisionType": "continue-current",
-        "nextTaskId": "real-task-runtime-mainline",
+        "nextTaskId": "real-真实任务接管机制层-p0-启动任务",
         "selectedPriority": "P0",
         "dependencyStatus": "satisfied",
         "overrideStatus": "none",
         "reason": "按 priority/status/updatedAt 选出最高优先任务。",
         "nextAction": "继续执行当前优先任务。",
-        "currentTask": "real-task-runtime-mainline",
+        "currentTask": "real-真实任务接管机制层-p0-启动任务",
         "currentStatus": "doing"
       }
     },
     {
       "source": ".agent/NEXT_TASK.md",
-      "content": "# NEXT_TASK\n\n- currentTask: real-task-runtime-mainline\n- currentStatus: doing\n- decisionType: continue-current\n- nextTaskId: real-task-runtime-mainline\n- selectedPriority: P0\n- dependencyStatus: satisfied\n- overrideStatus: none\n- reason: 按 priority/status/updatedAt 选出最高优先任务。\n- nextAction: 继续执行当前优先任务"
+      "content": "# NEXT_TASK\n\n- currentTask: real-真实任务接管机制层-p0-启动任务\n- currentStatus: doing\n- decisionType: continue-current\n- nextTaskId: real-真实任务接管机制层-p0-启动任务\n- selectedPriority: P0\n- dependencyStatus: satisfied\n- overrideStatus: none\n- reason: 按 priority/status/updatedAt 选出最高优先任务。\n- nextAction: 继续执行当前优先任务。"
     }
   ],
   "summary": [
@@ -163,8 +163,6 @@
 {
   "selectedTaskId": "real-task-runtime-mainline",
   "selectionReasons": [
-    "matches-next-task",
-    "matches-current-task",
     "status-doing"
   ],
   "candidateCount": 1,
@@ -191,10 +189,8 @@
   "candidates": [
     {
       "taskId": "real-task-runtime-mainline",
-      "score": 240,
+      "score": 50,
       "reasons": [
-        "matches-next-task",
-        "matches-current-task",
         "status-doing"
       ]
     }
@@ -215,15 +211,15 @@
   "nextStep": "继续推进 Task 3.2 resume_real_task.py。",
   "lastSuccess": "已完成 Task 3.1 progress_task_runtime.py。",
   "lastFailure": "之前主任务未回填 real runtime 元字段，导致 resume_real_task 拒绝。",
-  "updatedAt": "2026-04-06 18:02 Asia/Shanghai",
+  "updatedAt": "2026-04-06T23:21:01",
   "kind": "real",
   "source": "user-directive",
   "executionMode": "live",
   "ownerContext": "discord-direct",
-  "supervisionState": "active",
+  "supervisionState": "blocked",
   "eligibleForScheduling": true,
   "isPrimaryTrack": true,
-  "lifecycle": "active",
+  "lifecycle": "blocked",
   "title": "real-task-runtime-mainline"
 }
 
@@ -240,7 +236,7 @@
 - latestResult: Task 3.1 已进入统一推进入口验证。
 - blocker: 无
 - nextStep: 继续推进 Task 3.2 resume_real_task.py。
-- updatedAt: 2026-04-06 18:02 Asia/Shanghai
+- updatedAt: 2026-04-06T23:21:00
 
 ## resume_view
 # Resume State
@@ -251,7 +247,7 @@
 - 最后失败动作：之前主任务未回填 real runtime 元字段，导致 resume_real_task 拒绝。
 - 当前阻塞：无
 - 建议下一步：继续推进 Task 3.2 resume_real_task.py。
-- updatedAt: 2026-04-06 18:02 Asia/Shanghai
+- updatedAt: 2026-04-06T23:21:00
 
 ## tasks_view
 # TASKS
@@ -386,27 +382,42 @@
 - 最近结果：已接入 state store + next-task v2。
 
 ## Done
+### real-close-runtime-debug-target
+- 目标：debug close flow
+- 当前状态：done
+- 优先级：P1
+- 阻塞项：无
+- 下一步：archive
+- 最近结果：真实任务机制层 closure 已完成。
+
+### real-close-runtime-final-target
+- 目标：验证 close_task_runtime 收口链。
+- 当前状态：done
+- 优先级：P1
+- 阻塞项：无
+- 下一步：archive
+- 最近结果：真实任务机制层 closure 已完成。
 
 ## next_task_state
 {
   "decisionType": "continue-current",
-  "nextTaskId": "real-task-runtime-mainline",
+  "nextTaskId": "real-真实任务接管机制层-p0-启动任务",
   "selectedPriority": "P0",
   "dependencyStatus": "satisfied",
   "overrideStatus": "none",
   "reason": "按 priority/status/updatedAt 选出最高优先任务。",
   "nextAction": "继续执行当前优先任务。",
-  "currentTask": "real-task-runtime-mainline",
+  "currentTask": "real-真实任务接管机制层-p0-启动任务",
   "currentStatus": "doing"
 }
 
 ## next_task_view
 # NEXT_TASK
 
-- currentTask: real-task-runtime-mainline
+- currentTask: real-真实任务接管机制层-p0-启动任务
 - currentStatus: doing
 - decisionType: continue-current
-- nextTaskId: real-task-runtime-mainline
+- nextTaskId: real-真实任务接管机制层-p0-启动任务
 - selectedPriority: P0
 - dependencyStatus: satisfied
 - overrideStatus: none
