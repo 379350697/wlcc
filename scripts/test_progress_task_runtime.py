@@ -6,10 +6,11 @@ from pathlib import Path
 root = Path(__file__).resolve().parent.parent
 out = root / 'tests' / 'PROGRESS_TASK_RUNTIME_TEST_RESULT.md'
 issues = []
+task_id = 'real-task-runtime-mainline' if (root / '.agent' / 'state' / 'tasks' / 'real-task-runtime-mainline.json').exists() else 'real-close-runtime-final-target'
 
 res = subprocess.run([
     'python3', str(root / 'scripts' / 'progress_task_runtime.py'),
-    '--task-id', 'real-task-runtime-mainline',
+    '--task-id', task_id,
     '--latest-result', 'Task 3.1 已进入统一推进入口验证。',
     '--next-step', '继续推进 Task 3.2 resume_real_task.py。',
     '--blocker', '无',
@@ -19,9 +20,9 @@ res = subprocess.run([
 if res.returncode != 0:
     issues.append('progress_task_runtime failed')
 
-state = root / '.agent' / 'state' / 'tasks' / 'real-task-runtime-mainline.json'
+state = root / '.agent' / 'state' / 'tasks' / f'{task_id}.json'
 if not state.exists():
-    issues.append('missing real-task-runtime-mainline state')
+    issues.append(f'missing {task_id} state')
 else:
     data = json.loads(state.read_text(encoding='utf-8'))
     if data.get('latestResult') != 'Task 3.1 已进入统一推进入口验证。':

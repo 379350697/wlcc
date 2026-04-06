@@ -7,13 +7,14 @@ from pathlib import Path
 root = Path(__file__).resolve().parent.parent
 path = root / 'tests' / 'RETRIEVE_CONTEXT_NORMAL_OUTPUT.json'
 issues = []
+task_id = 'task-001' if (root / '.agent' / 'state' / 'tasks' / 'task-001.json').exists() else 'real-close-runtime-final-target'
 
 retriever = root / 'scripts' / 'retrieve_context.py'
 if retriever.exists():
     run = subprocess.run([
         'python3', str(retriever),
         '--project-root', str(root),
-        '--task-id', 'task-001',
+        '--task-id', task_id,
     ], capture_output=True, text=True)
     if run.returncode != 0:
         issues.append('retrieve_context.py failed for fresh normal output')
@@ -31,9 +32,9 @@ if not path.exists():
 else:
     data = json.loads(path.read_text(encoding='utf-8'))
     sources = [item['source'] for item in data.get('task_state', [])]
-    if '.agent/state/tasks/task-001.json' not in sources:
+    if f'.agent/state/tasks/{task_id}.json' not in sources:
         issues.append('missing canonical task state source')
-    if '.agent/tasks/task-001.md' not in sources:
+    if f'.agent/tasks/{task_id}.md' not in sources:
         issues.append('missing markdown task state source')
     if '.agent/state/next-task.json' not in sources:
         issues.append('missing canonical next-task source')
@@ -42,8 +43,8 @@ else:
 
     used = data.get('meta', {}).get('usedSources', [])
     try:
-        json_task_idx = used.index('.agent/state/tasks/task-001.json')
-        md_task_idx = used.index('.agent/tasks/task-001.md')
+        json_task_idx = used.index(f'.agent/state/tasks/{task_id}.json')
+        md_task_idx = used.index(f'.agent/tasks/{task_id}.md')
         if json_task_idx > md_task_idx:
             issues.append('canonical task state not ordered before markdown')
     except ValueError:
@@ -65,7 +66,7 @@ lines.append('## summary')
 if path.exists():
     data = json.loads(path.read_text(encoding='utf-8'))
     used = data.get('meta', {}).get('usedSources', [])
-    lines.append(f"- canonical_task_before_markdown: {'yes' if '.agent/state/tasks/task-001.json' in used and '.agent/tasks/task-001.md' in used and used.index('.agent/state/tasks/task-001.json') < used.index('.agent/tasks/task-001.md') else 'no'}")
+    lines.append(f"- canonical_task_before_markdown: {'yes' if f'.agent/state/tasks/{task_id}.json' in used and f'.agent/tasks/{task_id}.md' in used and used.index(f'.agent/state/tasks/{task_id}.json') < used.index(f'.agent/tasks/{task_id}.md') else 'no'}")
     lines.append(f"- canonical_next_before_markdown: {'yes' if '.agent/state/next-task.json' in used and '.agent/NEXT_TASK.md' in used and used.index('.agent/state/next-task.json') < used.index('.agent/NEXT_TASK.md') else 'no'}")
     lines.append(f"- degraded_fallback: {str(data.get('meta', {}).get('degradedFallback', 'unknown')).lower()}")
 lines.append('')
