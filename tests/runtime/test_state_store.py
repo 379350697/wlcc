@@ -1,0 +1,52 @@
+from pathlib import Path
+
+from runtime.common.models import TaskState
+from runtime.common.paths import RuntimePaths
+from runtime.state.lifecycle import transition_lifecycle
+from runtime.state.store import load_task_state, write_task_state
+
+
+def test_write_task_state_creates_index_and_task(tmp_path: Path):
+    paths = RuntimePaths(tmp_path)
+    task = TaskState(
+        taskId="task-1",
+        project="demo",
+        goal="do thing",
+        status="doing",
+        updatedAt="2026-04-06T12:00:00",
+    )
+
+    task_path, index_path = write_task_state(paths, task)
+    assert task_path.exists()
+    assert index_path.exists()
+
+    loaded = load_task_state(paths, "task-1")
+    assert loaded["taskId"] == "task-1"
+    assert loaded["status"] == "doing"
+    assert loaded["updatedAt"] == "2026-04-06T12:00:00"
+    assert loaded["eligibleForScheduling"] is False
+
+
+def test_transition_lifecycle_updates_task_and_supervision(tmp_path: Path):
+    paths = RuntimePaths(tmp_path)
+    task = TaskState(
+        taskId="task-2",
+        project="demo",
+        goal="do thing",
+        status="doing",
+        kind="real",
+        lifecycle="active",
+        latestResult="real output",
+        updatedAt="2026-04-06T12:00:00",
+        eligibleForScheduling=True,
+        isPrimaryTrack=True,
+    )
+    write_task_state(paths, task)
+
+    updated_task, supervision, current = transition_lifecycle(paths, "task-2", "blocked")
+    assert updated_task["lifecycle"] == "blocked"
+    assert updated_task["supervisionState"] == "blocked"
+    assert updated_task["eligibleForScheduling"] is True
+    assert supervision["status"] == "blocked"
+    assert supervision["stale"] is True
+    assert current == "active"
