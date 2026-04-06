@@ -2,3 +2,4 @@
 .agent/locks/
 *.pyc
 __pycache__/
+.codex
