@@ -7,15 +7,17 @@ root = Path(__file__).resolve().parent.parent
 out = root / 'tests' / 'HANDOFF_RESUME_CROSSCHECK_RESULT.md'
 issues = []
 
+task_id = 'real-task-runtime-mainline' if (root / '.agent' / 'state' / 'tasks' / 'real-task-runtime-mainline.json').exists() else 'task-phase2-demo'
+
 subprocess.run([
     'python3', str(root / 'scripts' / 'resume_task.py'),
     '--project-root', str(root),
-    '--task-id', 'demo-long-chain-autonomy',
+    '--task-id', task_id,
 ], capture_output=True, text=True)
 
 res = subprocess.run([
     'python3', str(root / 'scripts' / 'write_handoff_state.py'),
-    '--task-id', 'demo-long-chain-autonomy',
+    '--task-id', task_id,
     '--owner', 'ceo',
     '--executor', 'coder',
     '--reviewer', 'reviewer',
@@ -29,7 +31,7 @@ res = subprocess.run([
 if res.returncode != 0:
     issues.append('write_handoff_state failed')
 
-handoff_path = root / '.agent' / 'state' / 'handoffs' / 'demo-long-chain-autonomy.json'
+handoff_path = root / '.agent' / 'state' / 'handoffs' / f'{task_id}.json'
 if not handoff_path.exists():
     issues.append('handoff state missing')
 else:

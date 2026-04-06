@@ -14,23 +14,24 @@ for script in ['check_state_view_consistency.py', 'check_retrieval_priority.py']
         issues.append(f'{script} failed')
 
 # 2. degraded retrieval fallback simulation
-state_json = root / '.agent' / 'state' / 'tasks' / 'local-task-001.json'
-backup = root / '.agent' / 'state' / 'tasks' / 'local-task-001.json.bak-demo'
+target_task = 'real-task-runtime-mainline' if (root / '.agent' / 'state' / 'tasks' / 'real-task-runtime-mainline.json').exists() else 'task-001'
+state_json = root / '.agent' / 'state' / 'tasks' / f'{target_task}.json'
+backup = root / '.agent' / 'state' / 'tasks' / f'{target_task}.json.bak-demo'
 if state_json.exists():
     shutil.copy2(state_json, backup)
     state_json.unlink()
-    res = subprocess.run(['python3', str(root / 'scripts' / 'retrieve_context.py'), '--project-root', str(root), '--task-id', 'local-task-001'], capture_output=True, text=True)
+    res = subprocess.run(['python3', str(root / 'scripts' / 'retrieve_context.py'), '--project-root', str(root), '--task-id', target_task], capture_output=True, text=True)
     if res.returncode != 0:
         issues.append('retrieve_context degraded case failed to run')
     else:
         out = json.loads((root / 'tests' / 'RETRIEVE_CONTEXT_OUTPUT.json').read_text(encoding='utf-8'))
         sources = [item['source'] for item in out.get('task_state', [])]
-        if '.agent/tasks/local-task-001.md' not in sources:
+        if f'.agent/tasks/{target_task}.md' not in sources:
             issues.append('markdown fallback source missing when canonical state removed')
     shutil.copy2(backup, state_json)
     backup.unlink(missing_ok=True)
 else:
-    issues.append('missing local-task-001 canonical state for degraded case')
+    issues.append('missing target canonical state for degraded case')
 
 # 3. heartbeat edge triggers
 for script in ['test_heartbeat_reporting.py', 'test_heartbeat_triggers.py']:

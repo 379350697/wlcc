@@ -9,8 +9,9 @@ out = root / 'tests' / 'MISSING_DIRTY_FIELD_CASES_RESULT.md'
 issues = []
 
 # Missing required field inside task json should break state-view consistency
-path = root / '.agent' / 'state' / 'tasks' / 'demo-long-chain-autonomy.json'
-backup = root / '.agent' / 'state' / 'tasks' / 'demo-long-chain-autonomy.json.bak-missing'
+task_id = 'real-task-runtime-mainline' if (root / '.agent' / 'state' / 'tasks' / 'real-task-runtime-mainline.json').exists() else 'task-phase2-demo'
+path = root / '.agent' / 'state' / 'tasks' / f'{task_id}.json'
+backup = root / '.agent' / 'state' / 'tasks' / f'{task_id}.json.bak-missing'
 if path.exists():
     shutil.copy2(path, backup)
     data = json.loads(path.read_text(encoding='utf-8'))
@@ -25,8 +26,8 @@ else:
     issues.append('missing demo task json for missing-field case')
 
 # Dirty handoff field should still be stored but detectable by explicit read
-handoff = root / '.agent' / 'state' / 'handoffs' / 'demo-long-chain-autonomy.json'
-backup2 = root / '.agent' / 'state' / 'handoffs' / 'demo-long-chain-autonomy.json.bak-dirty'
+handoff = root / '.agent' / 'state' / 'handoffs' / f'{task_id}.json'
+backup2 = root / '.agent' / 'state' / 'handoffs' / f'{task_id}.json.bak-dirty'
 if handoff.exists():
     shutil.copy2(handoff, backup2)
     data = json.loads(handoff.read_text(encoding='utf-8'))
