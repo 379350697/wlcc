@@ -1,0 +1,4 @@
+# DEADLOOP_AND_ROLLBACK_CASES_RESULT
+
+## issues
+- none

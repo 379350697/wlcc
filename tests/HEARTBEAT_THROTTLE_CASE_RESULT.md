@@ -1,0 +1,4 @@
+# HEARTBEAT_THROTTLE_CASE_RESULT
+
+## issues
+- none

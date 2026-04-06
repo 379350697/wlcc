@@ -1,0 +1,4 @@
+# INVALID_AND_OVERRIDE_CASES_RESULT
+
+## issues
+- none

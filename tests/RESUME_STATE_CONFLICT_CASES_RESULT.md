@@ -1,0 +1,4 @@
+# RESUME_STATE_CONFLICT_CASES_RESULT
+
+## issues
+- none
