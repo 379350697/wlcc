@@ -5,10 +5,11 @@
 这不是单一 Skill 的提示词集合，也不是一堆零散脚本的研究目录。
 当前仓库已经整理成以下正式形态：
 
-- **总 Skill 统一入口**
-- **基建层 / Runtime 承载真实能力**
+- **entry skill 统一入口**
+- **runtime core 承载真实能力**
+- **sidecar services 承担视图与汇总**
 - **原子模块内聚复用**
-- **完整 Demo 与验收测试包**
+- **dev-only assets 保留研发与验证材料**
 - **可直接进入部署、演示、回归验证流程**
 
 ---
@@ -29,30 +30,50 @@
 
 ## 二、当前产品结构
 
-### 1. 总 Skill 统一入口
+### 1. entry skill
 - `skills/long-chain-autonomy/`
 
 这是当前推荐的**主入口**。
 使用时，优先把它当成统一产品入口，而不是手动在多个 Skill 之间来回切换。
 
-### 2. 基建层 / Runtime
+### 2. runtime core
+- `runtime/`
 - `scripts/`
 - `.agent/state/`
 - `.agent/loop/`
-- `.agent/heartbeat/`
-- `.agent/audit/`
 - `risk_policy.json`
 
-这部分是真正干活的底层能力，负责：
+这部分是真正干活的在线内核，负责：
 - canonical state
 - next-task v2
 - retrieval / resume
 - risk policy / escalation
 - failure control
-- heartbeat / observability
+- supervision / heartbeat emit
 - handoff / inheritance
 
-### 3. 原子模块
+### 3. sidecar services
+- `.agent/tasks/`
+- `.agent/resume/`
+- `.agent/heartbeat/heartbeat-summary.json`
+- `.agent/audit/`
+- `TASKS.md`
+
+这部分负责：
+- `NEXT_TASK.md`
+- task / resume Markdown 视图
+- heartbeat summary
+- observability dashboard
+- 一致性校验与可读报表
+
+### 4. dev-only assets
+- `tests/*.md`
+- `tests/*.json`
+- 历史 phase 文档
+- demo / acceptance 材料
+- 大量 `scripts/test_*.py`
+
+### 5. 原子模块
 - `skills/task-extract/`
 - `skills/project-state/`
 - `skills/context-compact/`
@@ -119,12 +140,15 @@
 bash scripts/bootstrap_project.sh
 python3 scripts/system_healthcheck.py
 python3 scripts/check_phase2_mainline.py
+python3 scripts/verify_standard_runtime_bundle.py
 ```
 
 ### 2. 查看统一部署说明
 优先阅读：
 - `UNIFIED_SKILL_DEPLOYMENT.md`
 - `QUICK_DEPLOY_AND_USE.md`
+- `STANDARD_RUNTIME_BUNDLE.md`
+- `OPENCLAW_STANDARD_RUNTIME_REFACTOR_SUMMARY.md`
 
 ### 3. 作为统一产品入口使用
 默认把：
@@ -150,12 +174,13 @@ python3 scripts/check_phase2_mainline.py
 1. `README.md`
 2. `UNIFIED_SKILL_DEPLOYMENT.md`
 3. `QUICK_DEPLOY_AND_USE.md`
-4. `FINAL_PRODUCTIZATION_SUMMARY.md`
-5. `FINAL_DELIVERY_SUMMARY.md`
-6. `tests/FINAL_VALIDATION_MATRIX.md`
-7. `DEMO_ACCEPTANCE_README.md`
-8. `TASKS.md`
-9. `.agent/audit/AUDIT_SUMMARY.md`
+4. `OPENCLAW_STANDARD_RUNTIME_REFACTOR_SUMMARY.md`
+5. `FINAL_PRODUCTIZATION_SUMMARY.md`
+6. `FINAL_DELIVERY_SUMMARY.md`
+7. `tests/FINAL_VALIDATION_MATRIX.md`
+8. `DEMO_ACCEPTANCE_README.md`
+9. `TASKS.md`
+10. `.agent/audit/AUDIT_SUMMARY.md`
 
 ---
 
@@ -171,6 +196,19 @@ python3 scripts/check_phase2_mainline.py
 - 可发布复验
 
 的产品化闭环。
+
+其中同步主链必须保留：
+- `.agent/state/tasks/*.json`
+- `.agent/state/index.json`
+- `.agent/state/next-task.json`
+
+可以延迟生成的 sidecar 产物包括：
+- `.agent/NEXT_TASK.md`
+- `.agent/tasks/*.md`
+- `.agent/resume/*.md`
+- `TASKS.md`
+- heartbeat summary
+- observability dashboard
 
 这意味着它可以被用作：
 - 正式交付仓

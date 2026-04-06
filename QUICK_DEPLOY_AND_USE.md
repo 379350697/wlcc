@@ -1,7 +1,7 @@
 # QUICK_DEPLOY_AND_USE
 
 ## 目标
-说明如何把本仓库按 **总 skill 统一包装 + 基建层承载 + 原子模块内聚复用** 的模式快速部署并开始使用。
+说明如何把本仓库按 **entry skill + runtime core + sidecar services + 原子模块内聚复用** 的模式快速部署并开始使用。
 
 ---
 
@@ -9,18 +9,17 @@
 
 部署后的仓库应保留以下三层：
 
-### 1. 总 skill 入口
+### 1. entry skill
 - `skills/long-chain-autonomy/`
 
 这是对外统一入口。
 默认优先使用它，而不是让使用者自己在多个 skill 之间手动切换。
 
-### 2. 基建层
+### 2. runtime core
+- `runtime/`
 - `scripts/`
 - `.agent/state/`
 - `.agent/loop/`
-- `.agent/heartbeat/`
-- `.agent/audit/`
 - `risk_policy.json`
 
 这是实际运行时能力承载层。
@@ -30,10 +29,24 @@
 - retrieval
 - risk / escalation
 - failure control
-- heartbeat / observability
+- supervision / heartbeat emit
 - resume / handoff
 
-### 3. 原子模块
+### 3. sidecar services
+- `.agent/tasks/`
+- `.agent/resume/`
+- `.agent/heartbeat/heartbeat-summary.json`
+- `.agent/audit/`
+- `TASKS.md`
+
+这部分主要承担：
+- `NEXT_TASK.md`
+- task / resume Markdown 视图
+- heartbeat summary
+- observability dashboard
+- 一致性校验结果
+
+### 4. 原子模块
 - `skills/task-extract/`
 - `skills/project-state/`
 - `skills/context-compact/`
@@ -51,6 +64,7 @@
 ### 必须保留的目录/文件
 - `skills/long-chain-autonomy/`
 - `skills/*` 原子 skill
+- `runtime/`
 - `dist/`
 - `scripts/`
 - `.agent/`
@@ -73,6 +87,7 @@
 - `.agent/state/next-task.json`
 - `.agent/state/index.json`
 - `tests/PHASE2_MAINLINE_CHECK_RESULT.md`
+- `STANDARD_RUNTIME_BUNDLE.md`
 
 ---
 
@@ -90,6 +105,7 @@ python3 scripts/check_phase2_mainline.py
 再跑：
 ```bash
 python3 scripts/system_healthcheck.py
+python3 scripts/verify_standard_runtime_bundle.py
 ```
 
 目标：确认 retrieval / risk / audit summary 基本健康。
@@ -179,9 +195,24 @@ python3 scripts/system_healthcheck.py
 
 不要反过来先靠长聊天历史恢复。
 
+## 六、同步与 sidecar 边界
+
+同步主链：
+1. `.agent/state/tasks/*.json`
+2. `.agent/state/index.json`
+3. `.agent/state/next-task.json`
+
+sidecar services：
+1. `.agent/NEXT_TASK.md`
+2. `.agent/tasks/*.md`
+3. `.agent/resume/*.md`
+4. `TASKS.md`
+5. heartbeat summary
+6. observability dashboard
+
 ---
 
-## 六、部署原则
+## 七、部署原则
 
 ### 对外原则
 - 总是优先暴露 `long-chain-autonomy`
@@ -200,7 +231,7 @@ python3 scripts/system_healthcheck.py
 
 ---
 
-## 七、当前推荐用法
+## 八、当前推荐用法
 
 如果现在要开始实际使用：
 1. 先把 `long-chain-autonomy` 当主入口
