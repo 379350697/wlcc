@@ -7,6 +7,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parent.parent
 
 CHECKS = [
+    ("control-plane-smoke", ["python3", str(root / "scripts" / "test_control_plane_smoke.py")]),
     ("runtime-pytest", ["python3", "-m", "pytest", "tests/runtime", "-q"]),
     ("tool-harness", ["python3", str(root / "scripts" / "test_tool_harness.py")]),
     ("progress-task-runtime", ["python3", str(root / "scripts" / "test_progress_task_runtime.py")]),

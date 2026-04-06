@@ -48,3 +48,19 @@ def test_resume_task_payload_uses_state_json(tmp_path: Path):
     payload = resume_task_payload(tmp_path, 'demo-task')
     assert payload['structured_summary']['summary_source'] == 'state-json'
     assert payload['structured_summary']['goal'] == 'demo goal'
+    assert payload['retrieved_context']['meta']['packageVersion'] == 1
+    assert payload['runtime_meta']['contextBudgetChars'] > 0
+    assert payload['runtime_meta']['contextTrimmed'] in (True, False)
+
+
+def test_collect_context_payload_falls_back_when_task_state_json_is_invalid(tmp_path: Path):
+    task_id = 'demo-task'
+    (tmp_path / '.agent' / 'state' / 'tasks').mkdir(parents=True, exist_ok=True)
+    (tmp_path / '.agent' / 'tasks').mkdir(parents=True, exist_ok=True)
+    (tmp_path / '.agent' / 'state' / 'tasks' / f'{task_id}.json').write_text('{bad json', encoding='utf-8')
+    (tmp_path / '.agent' / 'tasks' / f'{task_id}.md').write_text('# Task State\n- goal: markdown fallback', encoding='utf-8')
+
+    payload = collect_context_payload(tmp_path, task_id)
+    assert payload['meta']['degradedFallback'] is True
+    assert payload['task_state'][0]['source'].endswith(f'{task_id}.md')
+    assert payload['task_state'][0]['content'].startswith('# Task State')

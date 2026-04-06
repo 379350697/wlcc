@@ -1,9 +1,11 @@
 # STANDARD_RUNTIME_BUNDLE_VERIFICATION
 
 ## checks
+- control-plane-smoke: PASS
+  - stdout: OK: control plane smoke passed
 - runtime-pytest: PASS
-  - stdout: ...........................                                              [100%]
-27 passed in 0.36s
+  - stdout: ..........................................................               [100%]
+58 passed in 0.54s
 - tool-harness: PASS
   - stdout: === test_tool_harness.py ===
 

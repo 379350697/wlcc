@@ -8,7 +8,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from .registry import DEFAULTS, get_meta
+from runtime.events.bus import publish_runtime_event
+from runtime.actions.registry import get_action_meta
+from .registry import DEFAULTS
 
 MAX_CONCURRENT_WORKERS = 4
 CONSISTENCY_CHECK_SCRIPT = 'check_state_view_consistency.py'
@@ -101,10 +103,20 @@ class TaskHarness:
         self.steps: list[TrackedStep] = []
 
     def add(self, script_name: str, args: list, meta_override: Optional[dict] = None) -> 'TaskHarness':
-        meta = get_meta(script_name)
+        meta = get_action_meta(script_name)
         if meta_override:
             meta.update(meta_override)
         self.steps.append(TrackedStep(script_name=script_name, args=args, meta=meta))
+        publish_runtime_event(
+            'task_harness.step_queued',
+            self.task_id,
+            'queued',
+            {
+                'script': script_name,
+                'read_only': meta.get('read_only', False),
+                'concurrent_safe': meta.get('concurrent_safe', False),
+            },
+        )
         return self
 
     def execute_all(self) -> HarnessResult:
@@ -159,6 +171,12 @@ class TaskHarness:
 
     def _run_serial(self, step: TrackedStep) -> bool:
         step.state = 'executing'
+        publish_runtime_event(
+            'task_harness.step_started',
+            self.task_id,
+            'serial',
+            {'script': step.script_name},
+        )
         result = _execute_step_standalone(step.cmd, step.meta.get('timeout', DEFAULTS['timeout']), step.meta.get('max_result_chars', DEFAULTS['max_result_chars']), str(self.root))
         step.state = result['state']
         step.output = result['output']
@@ -166,6 +184,17 @@ class TaskHarness:
         step.exit_code = result['exit_code']
         step.duration_ms = result['duration_ms']
         step.truncated = result['truncated']
+        publish_runtime_event(
+            'task_harness.step_completed' if step.state == 'completed' else 'task_harness.step_failed',
+            self.task_id,
+            'serial',
+            {
+                'script': step.script_name,
+                'state': step.state,
+                'exit_code': step.exit_code,
+                'duration_ms': step.duration_ms,
+            },
+        )
         return step.state == 'completed'
 
     def _run_concurrent(self, steps: list[TrackedStep]) -> bool:
@@ -177,6 +206,13 @@ class TaskHarness:
                 pool.submit(_execute_step_standalone, step.cmd, step.meta.get('timeout', DEFAULTS['timeout']), step.meta.get('max_result_chars', DEFAULTS['max_result_chars']), str(self.root)): step
                 for step in steps
             }
+            for step in steps:
+                publish_runtime_event(
+                    'task_harness.step_started',
+                    self.task_id,
+                    'concurrent',
+                    {'script': step.script_name},
+                )
             for future in as_completed(future_to_step):
                 step = future_to_step[future]
                 try:
@@ -187,6 +223,17 @@ class TaskHarness:
                     step.exit_code = result['exit_code']
                     step.duration_ms = result['duration_ms']
                     step.truncated = result['truncated']
+                    publish_runtime_event(
+                        'task_harness.step_completed' if step.state == 'completed' else 'task_harness.step_failed',
+                        self.task_id,
+                        'concurrent',
+                        {
+                            'script': step.script_name,
+                            'state': step.state,
+                            'exit_code': step.exit_code,
+                            'duration_ms': step.duration_ms,
+                        },
+                    )
                     if step.state != 'completed':
                         all_success = False
                         for sibling in future_to_step:
@@ -196,20 +243,51 @@ class TaskHarness:
                     step.state = 'error'
                     step.error = str(exc)
                     all_success = False
+                    publish_runtime_event(
+                        'task_harness.step_failed',
+                        self.task_id,
+                        'concurrent',
+                        {'script': step.script_name, 'error': str(exc)},
+                    )
         for step in steps:
             if step.state == 'executing':
                 step.state = 'cancelled'
                 step.error = 'cancelled by sibling abort'
+                publish_runtime_event(
+                    'task_harness.step_failed',
+                    self.task_id,
+                    'concurrent',
+                    {'script': step.script_name, 'error': step.error},
+                )
         return all_success
 
     def _post_consistency_check(self) -> bool:
         script = self.root / 'scripts' / CONSISTENCY_CHECK_SCRIPT
         if not script.exists():
+            publish_runtime_event(
+                'task_harness.consistency_check_completed',
+                self.task_id,
+                'consistency',
+                {'passed': True, 'reason': 'script-missing'},
+            )
             return True
         try:
             result = subprocess.run(['python3', str(script)], capture_output=True, text=True, timeout=15, cwd=str(self.root))
-            return result.returncode == 0
+            passed = result.returncode == 0
+            publish_runtime_event(
+                'task_harness.consistency_check_completed',
+                self.task_id,
+                'consistency',
+                {'passed': passed, 'returncode': result.returncode},
+            )
+            return passed
         except (subprocess.TimeoutExpired, Exception):
+            publish_runtime_event(
+                'task_harness.consistency_check_completed',
+                self.task_id,
+                'consistency',
+                {'passed': False},
+            )
             return False
 
     def _write_execution_log(self, result: HarnessResult):

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from runtime.failure.pipeline import route_failure
+
 EMPTY_PHRASES = frozenset({
     '已完成', '完成', '推进中', '继续', '进行中', '正在处理',
     'done', 'completed', 'in progress', 'continue', 'ok', 'wip',
@@ -75,9 +77,16 @@ def evaluate_progress_gate(latest_result: str, next_step: str) -> dict:
 
     passed = len(violations) == 0
     reason = 'ok' if passed else violations[0]['reason']
-    return {
+    result = {
         'passed': passed,
         'reason': reason,
         'violations': violations,
     }
-
+    verdict = route_failure('progress', result)
+    result.update({
+        'failureClass': verdict.failure_class,
+        'degradationAction': verdict.next_action,
+        'retryable': verdict.retryable,
+        'requiresHuman': verdict.requires_human,
+    })
+    return result

@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+from runtime.context.package import package_context_payload
 from runtime.resume.context import collect_context_payload
 from runtime.resume.resume_state import build_resume_state_payload
 from runtime.supervision.core import handle_supervision_trigger, load_json, save_json
@@ -28,6 +29,7 @@ def tail_lines(text: str, count: int = 12):
 
 def resume_task_payload(root: Path, task_id: str) -> dict:
     context = collect_context_payload(root, task_id)
+    context_package = package_context_payload(context)
     task_view = read_if_exists(root / '.agent' / 'tasks' / f'{task_id}.md')
     resume_view = read_if_exists(root / '.agent' / 'resume' / f'{task_id}-resume.md')
     tasks_view = read_if_exists(root / 'TASKS.md')
@@ -71,7 +73,13 @@ def resume_task_payload(root: Path, task_id: str) -> dict:
             'event_log_tail': tail_lines(event_log),
         },
         'retrieved_context': context,
-        'runtime_meta': {'taskKind': task_kind},
+        'runtime_meta': {
+            'taskKind': task_kind,
+            'contextBudgetChars': context_package.meta.get('contextBudgetChars', 0),
+            'contextPackagedChars': context_package.meta.get('packagedChars', 0),
+            'contextBudgetExceeded': context_package.meta.get('contextBudgetExceeded', False),
+            'contextTrimmed': context_package.meta.get('contextTrimmed', False),
+        },
         'resume_state': resume_state,
         'task_state_json': task_state_json,
         'task_view': task_view,

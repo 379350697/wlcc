@@ -43,6 +43,11 @@
 
 ### runtime core
 - `runtime/common/`
+- `runtime/actions/`
+- `runtime/context/`
+- `runtime/evidence/`
+- `runtime/events/`
+- `runtime/failure/`
 - `runtime/state/`
 - `runtime/scheduling/`
 - `runtime/resume/`
@@ -72,6 +77,7 @@
 - `scripts/build_heartbeat_summary.py`
 - `scripts/build_observability_dashboard.py`
 - `scripts/check_state_view_consistency.py`
+- `scripts/test_control_plane_smoke.py`
 - `scripts/system_healthcheck.py`
 - `scripts/check_phase2_mainline.py`
 - `scripts/verify_standard_runtime_bundle.py`

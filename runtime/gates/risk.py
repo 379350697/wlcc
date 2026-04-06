@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from runtime.failure.pipeline import route_failure
+
 ROOT = Path(__file__).resolve().parents[2]
 POLICY_PATH = ROOT / 'risk_policy.json'
 
@@ -90,10 +92,17 @@ def evaluate_risk(action: str, scope: str, context: dict, target: dict | None = 
             result['matchedRule']['conditionOverride'] = True
         else:
             result['matchedRule']['conditionOverride'] = False
+        verdict = route_failure('risk', result)
+        result.update({
+            'failureClass': verdict.failure_class,
+            'degradationAction': verdict.next_action,
+            'retryable': verdict.retryable,
+            'requiresHuman': verdict.requires_human,
+        })
         return result
 
     default_rule = policy['defaultRule']
-    return {
+    result = {
         'riskLevel': default_rule['riskLevel'],
         'decision': default_rule['decision'],
         'reason': default_rule['reason'],
@@ -103,4 +112,11 @@ def evaluate_risk(action: str, scope: str, context: dict, target: dict | None = 
             'conditionOverride': False,
         },
     }
-
+    verdict = route_failure('risk', result)
+    result.update({
+        'failureClass': verdict.failure_class,
+        'degradationAction': verdict.next_action,
+        'retryable': verdict.retryable,
+        'requiresHuman': verdict.requires_human,
+    })
+    return result

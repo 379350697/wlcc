@@ -3,6 +3,24 @@ from typing import Any
 
 
 @dataclass
+class EvidenceRecord:
+    evidenceType: str
+    source: str
+    summary: str
+    details: dict[str, Any] = field(default_factory=dict)
+    recordedAt: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "evidenceType": self.evidenceType,
+            "source": self.source,
+            "summary": self.summary,
+            "details": dict(self.details),
+            "recordedAt": self.recordedAt,
+        }
+
+
+@dataclass
 class TaskState:
     taskId: str
     project: str
@@ -52,4 +70,3 @@ class TaskState:
             "lifecycle": self.lifecycle,
             "title": self.title,
         }
-
