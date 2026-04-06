@@ -1,4 +1,0 @@
-# OWNERSHIP_AND_DIRTY_EVENT_CASES_RESULT
-
-## issues
-- none

@@ -1,4 +1,0 @@
-# RESUME_CONFLICT_RESOLUTION_RESULT
-
-## issues
-- none

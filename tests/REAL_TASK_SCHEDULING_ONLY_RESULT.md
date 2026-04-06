@@ -1,4 +1,0 @@
-# REAL_TASK_SCHEDULING_ONLY_RESULT
-
-## issues
-- none

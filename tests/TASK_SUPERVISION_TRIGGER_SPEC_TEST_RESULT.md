@@ -1,4 +1,0 @@
-# TASK_SUPERVISION_TRIGGER_SPEC_TEST_RESULT
-
-## issues
-- none

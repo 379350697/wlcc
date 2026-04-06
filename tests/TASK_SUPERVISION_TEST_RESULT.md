@@ -1,4 +1,0 @@
-# TASK_SUPERVISION_TEST_RESULT
-
-## issues
-- none

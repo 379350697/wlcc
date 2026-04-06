@@ -1,4 +1,0 @@
-# REAL_TASK_VIEWS_CLOSURE_RESULT
-
-## issues
-- none

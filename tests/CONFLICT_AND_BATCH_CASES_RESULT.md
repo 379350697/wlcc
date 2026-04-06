@@ -1,4 +1,0 @@
-# CONFLICT_AND_BATCH_CASES_RESULT
-
-## issues
-- none

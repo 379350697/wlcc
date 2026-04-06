@@ -1,4 +1,0 @@
-# HEARTBEAT_SUMMARY_TEST_RESULT
-
-## issues
-- none
