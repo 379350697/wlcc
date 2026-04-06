@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import sys
 from pathlib import Path
 
-ALLOWED_STATUS = {'todo', 'doing', 'blocked', 'done'}
-ALLOWED_PRIORITY = {'P0', 'P1', 'P2', 'P3'}
-ALLOWED_OVERRIDE = {'none', 'force-run', 'force-hold'}
+root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(root))
+
+from runtime.common.models import TaskState
+from runtime.common.paths import RuntimePaths
+from runtime.state.store import write_task_state
 
 
 def main():
@@ -35,56 +39,32 @@ def main():
     parser.add_argument('--title', default='')
     args = parser.parse_args()
 
-    if args.status not in ALLOWED_STATUS:
-        raise SystemExit(f'invalid status: {args.status}')
-    if args.priority not in ALLOWED_PRIORITY:
-        raise SystemExit(f'invalid priority: {args.priority}')
-    if args.override not in ALLOWED_OVERRIDE:
-        raise SystemExit(f'invalid override: {args.override}')
-
-    root = Path(args.project_root)
-    state_dir = root / '.agent' / 'state' / 'tasks'
-    state_dir.mkdir(parents=True, exist_ok=True)
-    task_path = state_dir / f'{args.task_id}.json'
-
-    task = {
-        'taskId': args.task_id,
-        'project': args.project,
-        'goal': args.goal,
-        'status': args.status,
-        'priority': args.priority,
-        'dependencies': json.loads(args.dependencies),
-        'override': args.override,
-        'latestResult': args.latest_result,
-        'blocker': args.blocker,
-        'nextStep': args.next_step,
-        'lastSuccess': args.last_success,
-        'lastFailure': args.last_failure,
-        'updatedAt': args.updated_at,
-        'kind': args.kind,
-        'source': args.source,
-        'executionMode': args.execution_mode,
-        'ownerContext': args.owner_context,
-        'supervisionState': args.supervision_state,
-        'eligibleForScheduling': args.eligible_for_scheduling == 'true',
-        'isPrimaryTrack': args.is_primary_track == 'true',
-        'lifecycle': args.lifecycle,
-        'title': args.title,
-    }
-    task_path.write_text(json.dumps(task, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-    index_path = root / '.agent' / 'state' / 'index.json'
-    if index_path.exists():
-        index = json.loads(index_path.read_text(encoding='utf-8'))
-    else:
-        index = {'tasks': [], 'updatedAt': args.updated_at}
-
-    if args.task_id not in index['tasks']:
-        index['tasks'].append(args.task_id)
-    index['tasks'] = sorted(index['tasks'])
-    index['updatedAt'] = args.updated_at
-    index_path.write_text(json.dumps(index, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
+    task = TaskState(
+        taskId=args.task_id,
+        project=args.project,
+        goal=args.goal,
+        status=args.status,
+        priority=args.priority,
+        dependencies=json.loads(args.dependencies),
+        override=args.override,
+        latestResult=args.latest_result,
+        blocker=args.blocker,
+        nextStep=args.next_step,
+        lastSuccess=args.last_success,
+        lastFailure=args.last_failure,
+        updatedAt=args.updated_at,
+        kind=args.kind,
+        source=args.source,
+        executionMode=args.execution_mode,
+        ownerContext=args.owner_context,
+        supervisionState=args.supervision_state,
+        eligibleForScheduling=args.eligible_for_scheduling == 'true',
+        isPrimaryTrack=args.is_primary_track == 'true',
+        lifecycle=args.lifecycle,
+        title=args.title,
+    )
+    paths = RuntimePaths(Path(args.project_root))
+    task_path, index_path = write_task_state(paths, task)
     print(f'OK: wrote {task_path}')
     print(f'OK: wrote {index_path}')
 

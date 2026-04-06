@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
 import argparse
-import json
 import re
-import subprocess
-from datetime import datetime
+import sys
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
+if str(root) not in sys.path:
+    sys.path.insert(0, str(root))
+
+from runtime.common.io import write_json
+from runtime.common.models import TaskState
+from runtime.common.paths import RuntimePaths
+from runtime.common.time import now_iso
+from runtime.resume.service import write_resume_output
+from runtime.scheduling.next_task import build_next_task_from_state_dir, write_state_views
+from runtime.state.lifecycle import transition_lifecycle
+from runtime.state.store import write_task_state
 
 
 def slugify(text: str):
@@ -14,15 +23,6 @@ def slugify(text: str):
     text = re.sub(r'[^a-z0-9\u4e00-\u9fff]+', '-', text)
     text = re.sub(r'-+', '-', text).strip('-')
     return text or 'real-task'
-
-
-def now_text():
-    return datetime.now().strftime('%Y-%m-%d %H:%M Asia/Shanghai')
-
-
-def write_json(path: Path, payload):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
 
 def main():
@@ -38,43 +38,37 @@ def main():
     args = parser.parse_args()
 
     project_root = Path(args.project_root)
+    paths = RuntimePaths(project_root)
     task_id = args.task_id or f"real-{slugify(args.title)}"
-    updated_at = now_text()
+    updated_at = now_iso()
 
-    subprocess.run([
-        'python3', str(project_root / 'scripts' / 'write_state_store.py'),
-        '--project-root', str(project_root),
-        '--task-id', task_id,
-        '--project', project_root.name,
-        '--goal', args.goal,
-        '--status', 'doing',
-        '--priority', args.priority,
-        '--dependencies', '[]',
-        '--override', 'none',
-        '--latest-result', '真实任务已接入 runtime。',
-        '--blocker', '无',
-        '--next-step', '进入 lifecycle=ingested，并等待正式推进。',
-        '--last-success', '真实任务 ingest 已完成。',
-        '--last-failure', '无',
-        '--updated-at', updated_at,
-    ], check=True)
+    task = TaskState(
+        taskId=task_id,
+        project=project_root.name,
+        goal=args.goal,
+        status='doing',
+        priority=args.priority,
+        dependencies=[],
+        override='none',
+        latestResult='真实任务已接入 runtime。',
+        blocker='无',
+        nextStep='进入 lifecycle=ingested，并等待正式推进。',
+        lastSuccess='真实任务 ingest 已完成。',
+        lastFailure='无',
+        updatedAt=updated_at,
+        kind='real',
+        source=args.source,
+        executionMode=args.execution_mode,
+        ownerContext=args.owner_context,
+        supervisionState='ingested',
+        eligibleForScheduling=True,
+        isPrimaryTrack=True,
+        lifecycle='ingested',
+        title=args.title,
+    )
+    write_task_state(paths, task)
 
-    state_path = project_root / '.agent' / 'state' / 'tasks' / f'{task_id}.json'
-    data = json.loads(state_path.read_text(encoding='utf-8'))
-    data.update({
-        'kind': 'real',
-        'source': args.source,
-        'executionMode': args.execution_mode,
-        'ownerContext': args.owner_context,
-        'supervisionState': 'ingested',
-        'eligibleForScheduling': True,
-        'isPrimaryTrack': True,
-        'lifecycle': 'ingested',
-        'title': args.title,
-    })
-    write_json(state_path, data)
-
-    supervision_path = project_root / '.agent' / 'state' / 'supervision' / f'{task_id}.json'
+    supervision_path = paths.supervision_state_dir / f'{task_id}.json'
     write_json(supervision_path, {
         'taskId': task_id,
         'status': 'ingested',
@@ -85,23 +79,26 @@ def main():
         'updatedAt': updated_at,
     })
 
-    subprocess.run(['python3', str(project_root / 'scripts' / 'render_state_views.py'), '--project-root', str(project_root), '--task-id', task_id], check=True)
-    subprocess.run(['python3', str(project_root / 'scripts' / 'build_next_task_from_state.py')], cwd=str(project_root), check=True)
-    subprocess.run(['python3', str(project_root / 'scripts' / 'resume_task.py'), '--project-root', str(project_root), '--task-id', task_id], check=True)
-    lifecycle_script = project_root / 'scripts' / 'update_task_lifecycle.py'
-    if lifecycle_script.exists():
-        subprocess.run(['python3', str(lifecycle_script), '--task-id', task_id, '--to', 'active'], check=True)
+    build_next_task_from_state_dir(
+        paths.tasks_state_dir,
+        paths.state_dir / 'next-task.json',
+        paths.agent_dir / 'NEXT_TASK.md',
+        paths.state_dir / 'next-task-input.json',
+    )
+    write_state_views(paths.tasks_state_dir, paths.agent_dir / 'tasks', paths.agent_dir / 'resume', project_root / 'TASKS.md')
+    write_resume_output(project_root, task_id)
+    transition_lifecycle(paths, task_id, 'active')
 
     out = project_root / 'tests' / 'INGEST_REAL_TASK_RESULT.md'
     lines = ['# INGEST_REAL_TASK_RESULT', '', '## summary']
     lines.append(f'- taskId: {task_id}')
-    lines.append(f'- kind: real')
+    lines.append('- kind: real')
     lines.append(f'- source: {args.source}')
     lines.append(f'- executionMode: {args.execution_mode}')
     lines.append(f'- ownerContext: {args.owner_context}')
-    lines.append(f'- lifecycle: ingested')
-    lines.append(f'- eligibleForScheduling: true')
-    lines.append(f'- isPrimaryTrack: true')
+    lines.append('- lifecycle: ingested')
+    lines.append('- eligibleForScheduling: true')
+    lines.append('- isPrimaryTrack: true')
     out.write_text('\n'.join(lines) + '\n', encoding='utf-8')
     print(f'OK: wrote {out}')
 

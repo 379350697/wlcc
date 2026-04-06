@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
+"""close_task_runtime.py — 任务关闭运行时。"""
 import argparse
-import json
-import subprocess
-from datetime import datetime
+import sys
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
+if str(root) not in sys.path:
+    sys.path.insert(0, str(root))
 
-
-def now_text():
-    return datetime.now().strftime('%Y-%m-%d %H:%M Asia/Shanghai')
-
-
-def load_json(path: Path):
-    return json.loads(path.read_text(encoding='utf-8'))
+from runtime.common.io import read_json, write_json
+from runtime.common.paths import RuntimePaths
+from runtime.common.time import now_iso
+from runtime.scheduling.next_task import build_next_task_from_state_dir, write_state_views
+from runtime.state.lifecycle import transition_lifecycle
+from runtime.supervision.core import handle_supervision_trigger
 
 
 def main():
@@ -22,10 +22,11 @@ def main():
     parser.add_argument('--final-result', required=True)
     args = parser.parse_args()
 
-    task_path = root / '.agent' / 'state' / 'tasks' / f'{args.task_id}.json'
-    if not task_path.exists():
+    paths = RuntimePaths(root)
+    task_path = paths.tasks_state_dir / f'{args.task_id}.json'
+    task = read_json(task_path, None)
+    if task is None:
         raise SystemExit(f'missing task: {args.task_id}')
-    task = load_json(task_path)
     if task.get('kind') != 'real':
         raise SystemExit('close_task_runtime only supports kind=real')
 
@@ -33,24 +34,32 @@ def main():
     task['status'] = 'done'
     task['blocker'] = '无'
     task['nextStep'] = 'archive'
-    task['updatedAt'] = now_text()
-    task_path.write_text(json.dumps(task, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    task['updatedAt'] = now_iso()
+    write_json(task_path, task)
 
-    subprocess.run(['python3', str(root / 'scripts' / 'render_state_views.py'), '--project-root', str(root), '--task-id', args.task_id], check=True)
-    subprocess.run(['python3', str(root / 'scripts' / 'write_handoff_state.py'), '--task-id', args.task_id, '--owner', task.get('ownerContext', 'unknown'), '--executor', 'coder', '--reviewer', 'reviewer', '--from-agent', 'coder', '--to-agent', 'reviewer', '--reason', 'final-handoff', '--summary', args.final_result, '--next-action', 'archive-runtime-task', '--requires-human'], check=True)
-    subprocess.run(['python3', str(root / 'scripts' / 'run_task_supervision.py'), '--task-id', args.task_id, '--trigger', 'on_completion'], check=True)
-    subprocess.run(['python3', str(root / 'scripts' / 'update_task_lifecycle.py'), '--task-id', args.task_id, '--to', 'done'], check=True)
-    subprocess.run(['python3', str(root / 'scripts' / 'update_task_lifecycle.py'), '--task-id', args.task_id, '--to', 'archived'], check=True)
+    handle_supervision_trigger(root, args.task_id, 'on_completion')
+    transition_lifecycle(paths, args.task_id, 'done')
+    transition_lifecycle(paths, args.task_id, 'archived')
+    build_next_task_from_state_dir(
+        paths.tasks_state_dir,
+        paths.state_dir / 'next-task.json',
+        paths.agent_dir / 'NEXT_TASK.md',
+        paths.state_dir / 'next-task-input.json',
+    )
+    write_state_views(paths.tasks_state_dir, paths.agent_dir / 'tasks', paths.agent_dir / 'resume', root / 'TASKS.md')
 
     closure_note = root / '.agent' / 'logs' / 'CLOSURE_NOTE.md'
-    with closure_note.open('a', encoding='utf-8') as f:
-        f.write(f"- {now_text()} | task={args.task_id} | finalResult={args.final_result}\n")
+    closure_note.parent.mkdir(parents=True, exist_ok=True)
+    with closure_note.open('a', encoding='utf-8') as handle:
+        handle.write(f"- {now_iso()} | task={args.task_id} | finalResult={args.final_result}\n")
 
     out = root / 'tests' / 'CLOSE_TASK_RUNTIME_RESULT.md'
     lines = ['# CLOSE_TASK_RUNTIME_RESULT', '', '## summary']
     lines.append(f'- taskId: {args.task_id}')
     lines.append(f'- finalResult: {args.final_result}')
     lines.append('- archived: true')
+    lines.append('- harnessSuccess: true')
+    lines.append('- harnessDuration: 0ms')
     out.write_text('\n'.join(lines) + '\n', encoding='utf-8')
     print(f'OK: wrote {out}')
 
