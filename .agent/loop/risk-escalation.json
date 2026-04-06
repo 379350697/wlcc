@@ -1,0 +1,9 @@
+{
+  "decision": "continue",
+  "reason": "all checks passed",
+  "nextAction": "continue-loop",
+  "requiresHuman": false,
+  "allowDegraded": false,
+  "allowRetry": false,
+  "allowRollback": false
+}

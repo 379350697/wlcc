@@ -1,0 +1,40 @@
+{
+  "selectedTaskId": "task-phase2-demo",
+  "selectionReasons": [
+    "matches-next-task",
+    "matches-current-task",
+    "status-doing"
+  ],
+  "candidateCount": 1,
+  "conflictPolicy": {
+    "priority": [
+      "next-task",
+      "current-task",
+      "doing",
+      "override",
+      "todo",
+      "blocked"
+    ],
+    "selectedBy": "score-based-priority"
+  },
+  "loopResume": {
+    "lastTaskId": "task-phase2-demo",
+    "lastStep": 1,
+    "decisionType": "continue-current",
+    "stopType": "stage-complete-stop",
+    "stopReason": "current stage boundary reached",
+    "riskEscalation": "continue",
+    "failureControl": "continue"
+  },
+  "candidates": [
+    {
+      "taskId": "task-phase2-demo",
+      "score": 240,
+      "reasons": [
+        "matches-next-task",
+        "matches-current-task",
+        "status-doing"
+      ]
+    }
+  ]
+}

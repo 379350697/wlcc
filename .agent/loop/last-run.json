@@ -1,0 +1,72 @@
+{
+  "mode": "bounded-autonomy",
+  "steps": [
+    {
+      "step": 1,
+      "taskId": "task-phase2-demo",
+      "decisionType": "continue-current",
+      "checks": [
+        {
+          "name": "state_view_consistency",
+          "exitCode": 0
+        },
+        {
+          "name": "next_task_consistency",
+          "exitCode": 0
+        },
+        {
+          "name": "retrieval_priority",
+          "exitCode": 0
+        },
+        {
+          "name": "risk_policy_consistency",
+          "exitCode": 0
+        },
+        {
+          "name": "mainline",
+          "exitCode": 0
+        }
+      ],
+      "checkHandling": [
+        {
+          "name": "state_view_consistency",
+          "exitCode": 0,
+          "handling": "direct-stop",
+          "status": "pass"
+        },
+        {
+          "name": "next_task_consistency",
+          "exitCode": 0,
+          "handling": "direct-stop",
+          "status": "pass"
+        },
+        {
+          "name": "retrieval_priority",
+          "exitCode": 0,
+          "handling": "wait-confirmation",
+          "status": "pass"
+        },
+        {
+          "name": "risk_policy_consistency",
+          "exitCode": 0,
+          "handling": "wait-confirmation",
+          "status": "pass"
+        },
+        {
+          "name": "mainline",
+          "exitCode": 0,
+          "handling": "direct-stop",
+          "status": "pass"
+        }
+      ],
+      "degradedMode": "normal",
+      "riskEscalation": "continue",
+      "failureControl": "continue",
+      "stopType": "stage-complete-stop",
+      "stopReason": "current stage boundary reached"
+    }
+  ],
+  "stopReason": "stage-complete-stop",
+  "maxSteps": 3,
+  "maxAutoRiskLevel": "L1"
+}

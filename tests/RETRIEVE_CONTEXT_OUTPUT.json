@@ -23,48 +23,48 @@
   ],
   "task_state": [
     {
-      "source": ".agent/state/tasks/task-001.json",
+      "source": ".agent/state/tasks/task-phase2-e2e-single.json",
       "content": {
-        "taskId": "task-001",
-        "project": "wlcc-release",
-        "goal": "继续推进整体项目收口与下一阶段增强。",
+        "taskId": "task-phase2-e2e-single",
+        "project": "research-claude-code",
+        "goal": "验证单任务端到端链路。",
         "status": "doing",
-        "priority": "P1",
+        "priority": "P2",
         "dependencies": [],
         "override": "none",
-        "latestResult": "发布版已同步 Phase 2 主链脚本、文档与验证材料。",
-        "blocker": "缺少 release 侧 canonical state 运行态产物。",
-        "nextStep": "补齐 state/view/next-task 并重跑 release 检查。",
-        "lastSuccess": "发布版同步包已落地。",
+        "latestResult": "单任务 E2E 更新已触发。",
+        "blocker": "无",
+        "nextStep": "检查 state/view/next-task/retrieval。",
+        "lastSuccess": "单任务写入已执行。",
         "lastFailure": "无",
-        "updatedAt": "2026-04-06 00:04 Asia/Shanghai"
+        "updatedAt": "2026-04-05 23:41 Asia/Shanghai"
       }
     },
     {
-      "source": ".agent/tasks/task-001.md",
-      "content": "# Task State\n\n- id: task-001\n- project: wlcc-release\n- goal: 继续推进整体项目收口与下一阶段增强。\n- status: doing\n- priority: P1\n- dependencies: []\n- override: none\n- latestResult: 发布版已同步 Phase 2 主链脚本、文档与验证材料。\n- blocker: 缺少 release 侧 canonical state 运行态产物。\n- nextStep: 补齐 state/view/next-task 并重跑 release 检查。\n- updated"
+      "source": ".agent/tasks/task-phase2-e2e-single.md",
+      "content": "# Task State\n\n- id: task-phase2-e2e-single\n- project: research-claude-code\n- goal: 验证单任务端到端链路。\n- status: doing\n- priority: P2\n- dependencies: []\n- override: none\n- latestResult: 单任务 E2E 更新已触发。\n- blocker: 无\n- nextStep: 检查 state/view/next-task/retrieval。\n- updatedAt: 2026-04-05 23:41 Asia/Shanghai"
     },
     {
-      "source": ".agent/resume/task-001-resume.md",
-      "content": "# Resume State\n\n- taskId: task-001\n- 最后目标：继续推进整体项目收口与下一阶段增强。\n- 最后成功动作：发布版同步包已落地。\n- 最后失败动作：无\n- 当前阻塞：缺少 release 侧 canonical state 运行态产物。\n- 建议下一步：补齐 state/view/next-task 并重跑 release 检查。\n- updatedAt: 2026-04-06 00:04 Asia/Shanghai"
+      "source": ".agent/resume/task-phase2-e2e-single-resume.md",
+      "content": "# Resume State\n\n- taskId: task-phase2-e2e-single\n- 最后目标：验证单任务端到端链路。\n- 最后成功动作：单任务写入已执行。\n- 最后失败动作：无\n- 当前阻塞：无\n- 建议下一步：检查 state/view/next-task/retrieval。\n- updatedAt: 2026-04-05 23:41 Asia/Shanghai"
     },
     {
       "source": ".agent/state/next-task.json",
       "content": {
         "decisionType": "continue-current",
-        "nextTaskId": "task-001",
+        "nextTaskId": "task-phase2-demo",
         "selectedPriority": "P1",
         "dependencyStatus": "satisfied",
         "overrideStatus": "none",
         "reason": "按 priority/status/updatedAt 选出最高优先任务。",
         "nextAction": "继续执行当前优先任务。",
-        "currentTask": "task-001",
+        "currentTask": "task-phase2-demo",
         "currentStatus": "doing"
       }
     },
     {
       "source": ".agent/NEXT_TASK.md",
-      "content": "# NEXT_TASK\n\n- currentTask: task-001\n- currentStatus: doing\n- decisionType: continue-current\n- nextTaskId: task-001\n- selectedPriority: P1\n- dependencyStatus: satisfied\n- overrideStatus: none\n- reason: 按 priority/status/updatedAt 选出最高优先任务。\n- nextAction: 继续执行当前优先任务。"
+      "content": "# NEXT_TASK\n\n- currentTask: task-phase2-demo\n- currentStatus: doing\n- decisionType: continue-current\n- nextTaskId: task-phase2-demo\n- selectedPriority: P1\n- dependencyStatus: satisfied\n- overrideStatus: none\n- reason: 按 priority/status/updatedAt 选出最高优先任务。\n- nextAction: 继续执行当前优先任务。"
     }
   ],
   "summary": [
@@ -91,9 +91,9 @@
       "DECISIONS.md",
       "TASKS.md",
       "INCIDENTS.md",
-      ".agent/state/tasks/task-001.json",
-      ".agent/tasks/task-001.md",
-      ".agent/resume/task-001-resume.md",
+      ".agent/state/tasks/task-phase2-e2e-single.json",
+      ".agent/tasks/task-phase2-e2e-single.md",
+      ".agent/resume/task-phase2-e2e-single-resume.md",
       ".agent/state/next-task.json",
       ".agent/NEXT_TASK.md",
       "memory/session/SESSION_SUMMARY.md",

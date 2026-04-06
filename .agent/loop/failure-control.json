@@ -1,0 +1,7 @@
+{
+  "taskId": "task-phase2-demo",
+  "decision": "rollback",
+  "reason": "need rollback now",
+  "nextAction": "rollback",
+  "requiresHuman": true
+}

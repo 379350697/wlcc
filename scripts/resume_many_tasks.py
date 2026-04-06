@@ -46,6 +46,16 @@ def main():
     out = ['# BULK_RESUME_OUTPUT', '']
     retriever = root / 'scripts' / 'retrieve_context.py'
     context_output = root / 'tests' / 'RETRIEVE_CONTEXT_OUTPUT.json'
+
+    bulk_resume_state_output = root / '.agent' / 'state' / 'bulk-resume-state.json'
+    build_resume_state = root / 'scripts' / 'build_resume_state.py'
+    if build_resume_state.exists():
+        subprocess.run([
+            'python3', str(build_resume_state),
+            '--task-ids', *args.task_ids,
+            '--output', str(bulk_resume_state_output),
+        ], check=False)
+    bulk_resume_state = read_if_exists(bulk_resume_state_output)
     for task_id in args.task_ids:
         if retriever.exists():
             subprocess.run([
@@ -98,6 +108,9 @@ def main():
         out.append(resume_view)
         out.append('')
         log_event(root, args.time, task_id, 'success', 'bulk resume output generated')
+    out.append('## bulk_resume_state')
+    out.append(bulk_resume_state)
+    out.append('')
     out.append('## next_task_state')
     out.append(next_task_state)
     out.append('')

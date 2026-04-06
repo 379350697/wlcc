@@ -1,0 +1,21 @@
+{
+  "version": "phase-f-v1",
+  "sharedStateSource": "canonical-state",
+  "inheritanceRules": {
+    "stateReadOrder": [
+      ".agent/state/tasks/<task-id>.json",
+      ".agent/state/<task-id>-resume-state.json",
+      ".agent/state/handoffs/<task-id>.json",
+      ".agent/state/next-task.json"
+    ],
+    "nextTaskReadPolicy": "all-agents-read-same-next-task",
+    "stopHeartbeatRiskSemantics": "shared",
+    "resumeAfterHandoff": "handoff-state-first"
+  },
+  "writePermissions": {
+    "owner": ["write-state", "write-doc"],
+    "executor": ["write-state", "write-doc"],
+    "reviewer": ["read", "summary"],
+    "unassigned": ["read"]
+  }
+}

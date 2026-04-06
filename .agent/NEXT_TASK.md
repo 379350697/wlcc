@@ -1,9 +1,9 @@
 # NEXT_TASK
 
-- currentTask: task-001
+- currentTask: task-phase2-demo
 - currentStatus: doing
 - decisionType: continue-current
-- nextTaskId: task-001
+- nextTaskId: task-phase2-demo
 - selectedPriority: P1
 - dependencyStatus: satisfied
 - overrideStatus: none

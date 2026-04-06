@@ -1,0 +1,17 @@
+{
+  "task-phase2-demo": {
+    "retries": 2,
+    "lastStopType": "anomaly-stop",
+    "lastReason": "check failure",
+    "action": "reorder-next-task",
+    "requiresRollback": false,
+    "rollbackTarget": "none",
+    "backoffMode": "bounded",
+    "backoffDelaySteps": 0,
+    "manualPriorityLock": true,
+    "reorderTarget": "none",
+    "preferUnblocked": true,
+    "taskPriority": "P1",
+    "taskStatus": "doing"
+  }
+}

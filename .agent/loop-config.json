@@ -1,0 +1,7 @@
+{
+  "maxSteps": 3,
+  "maxPhaseTransitions": 1,
+  "maxAutoRiskLevel": "L1",
+  "stopOnCheckFailure": true,
+  "defaultMode": "bounded-autonomy"
+}

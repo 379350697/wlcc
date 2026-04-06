@@ -1,0 +1,8 @@
+{
+  "maxRetries": 2,
+  "retryOn": ["anomaly-stop"],
+  "backoffMode": "bounded",
+  "promoteBlockedTask": false,
+  "deprioritizeRepeatedFailure": true,
+  "preferUnblocked": true
+}

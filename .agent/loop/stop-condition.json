@@ -1,0 +1,11 @@
+{
+  "taskId": "task-phase2-demo",
+  "step": 1,
+  "stopType": "stage-complete-stop",
+  "reason": "current stage boundary reached",
+  "evidence": [
+    "phaseComplete=true"
+  ],
+  "nextAction": "report-stage-complete",
+  "requiresHuman": true
+}

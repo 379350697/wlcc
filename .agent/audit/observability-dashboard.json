@@ -1,0 +1,161 @@
+{
+  "loopHistory": [
+    {
+      "step": 1,
+      "taskId": "task-phase2-demo",
+      "decisionType": "continue-current",
+      "checks": [
+        {
+          "name": "state_view_consistency",
+          "exitCode": 0
+        },
+        {
+          "name": "next_task_consistency",
+          "exitCode": 0
+        },
+        {
+          "name": "retrieval_priority",
+          "exitCode": 0
+        },
+        {
+          "name": "risk_policy_consistency",
+          "exitCode": 0
+        },
+        {
+          "name": "mainline",
+          "exitCode": 0
+        }
+      ],
+      "checkHandling": [
+        {
+          "name": "state_view_consistency",
+          "exitCode": 0,
+          "handling": "direct-stop",
+          "status": "pass"
+        },
+        {
+          "name": "next_task_consistency",
+          "exitCode": 0,
+          "handling": "direct-stop",
+          "status": "pass"
+        },
+        {
+          "name": "retrieval_priority",
+          "exitCode": 0,
+          "handling": "wait-confirmation",
+          "status": "pass"
+        },
+        {
+          "name": "risk_policy_consistency",
+          "exitCode": 0,
+          "handling": "wait-confirmation",
+          "status": "pass"
+        },
+        {
+          "name": "mainline",
+          "exitCode": 0,
+          "handling": "direct-stop",
+          "status": "pass"
+        }
+      ],
+      "degradedMode": "normal",
+      "riskEscalation": "continue",
+      "failureControl": "continue",
+      "stopType": "stage-complete-stop",
+      "stopReason": "current stage boundary reached"
+    }
+  ],
+  "checkHistory": [
+    {
+      "name": "state_view_consistency",
+      "exitCode": 0,
+      "handling": "direct-stop",
+      "status": "pass"
+    },
+    {
+      "name": "next_task_consistency",
+      "exitCode": 0,
+      "handling": "direct-stop",
+      "status": "pass"
+    },
+    {
+      "name": "retrieval_priority",
+      "exitCode": 0,
+      "handling": "wait-confirmation",
+      "status": "pass"
+    },
+    {
+      "name": "risk_policy_consistency",
+      "exitCode": 0,
+      "handling": "wait-confirmation",
+      "status": "pass"
+    },
+    {
+      "name": "mainline",
+      "exitCode": 0,
+      "handling": "direct-stop",
+      "status": "pass"
+    }
+  ],
+  "failureClusters": [
+    {
+      "target": "task-missing-field-demo",
+      "count": 1
+    }
+  ],
+  "retryReorderRollbackHistory": {
+    "retryState": {
+      "task-phase2-demo": {
+        "retries": 1,
+        "lastStopType": "anomaly-stop",
+        "lastReason": "check failure",
+        "action": "retry-same-task",
+        "requiresRollback": false,
+        "rollbackTarget": "none",
+        "backoffMode": "bounded",
+        "backoffDelaySteps": 1,
+        "manualPriorityLock": false,
+        "reorderTarget": "none",
+        "preferUnblocked": true,
+        "taskPriority": "P1",
+        "taskStatus": "doing"
+      }
+    },
+    "latestFailureControl": {
+      "taskId": "task-phase2-demo",
+      "decision": "rollback",
+      "reason": "need rollback now",
+      "nextAction": "rollback",
+      "requiresHuman": true
+    },
+    "matchedEvents": [],
+    "rollbackEvents": []
+  },
+  "systemHealthSummary": {
+    "heartbeatSummary": {},
+    "systemHealthcheck": "# SYSTEM_HEALTHCHECK\n\n- layered_read: PASS\n- risk_check: PASS\n- audit_summary: PASS\n\n## Overall\n- PASS",
+    "eventCount": 77,
+    "checkFailures": [
+      {
+        "name": "state_view_consistency",
+        "status": "pass"
+      },
+      {
+        "name": "next_task_consistency",
+        "status": "pass"
+      },
+      {
+        "name": "retrieval_priority",
+        "status": "pass"
+      },
+      {
+        "name": "risk_policy_consistency",
+        "status": "pass"
+      },
+      {
+        "name": "mainline",
+        "status": "pass"
+      }
+    ]
+  }
+}

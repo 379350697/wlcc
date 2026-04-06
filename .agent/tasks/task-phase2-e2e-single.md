@@ -1,0 +1,13 @@
+# Task State
+
+- id: task-phase2-e2e-single
+- project: research-claude-code
+- goal: 验证单任务端到端链路。
+- status: doing
+- priority: P2
+- dependencies: []
+- override: none
+- latestResult: 单任务 E2E 更新已触发。
+- blocker: 无
+- nextStep: 检查 state/view/next-task/retrieval。
+- updatedAt: 2026-04-05 23:41 Asia/Shanghai

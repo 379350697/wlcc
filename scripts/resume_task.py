@@ -48,6 +48,16 @@ def main():
     event_log = read_if_exists(root / '.agent' / 'logs' / 'EVENT_LOG.md')
     retrieved_context = read_if_exists(context_output)
 
+    resume_state_output = root / '.agent' / 'state' / f'{args.task_id}-resume-state.json'
+    build_resume_state = root / 'scripts' / 'build_resume_state.py'
+    if build_resume_state.exists():
+        subprocess.run([
+            'python3', str(build_resume_state),
+            '--task-ids', args.task_id,
+            '--output', str(resume_state_output),
+        ], check=False)
+    resume_state = read_if_exists(resume_state_output)
+
     task_state_json = read_if_exists(root / '.agent' / 'state' / 'tasks' / f'{args.task_id}.json')
     summary_source = 'state-json'
     if task_state_json != 'MISSING':
@@ -88,6 +98,9 @@ def main():
         '',
         '## retrieved_context',
         retrieved_context,
+        '',
+        '## resume_state',
+        resume_state,
         '',
         '## task_state_json',
         task_state_json,
