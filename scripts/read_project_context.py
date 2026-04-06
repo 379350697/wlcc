@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 import argparse
 import json
-import subprocess
+import sys
 from pathlib import Path
+
+root = Path(__file__).resolve().parent.parent
+if str(root) not in sys.path:
+    sys.path.insert(0, str(root))
+
+from runtime.resume.service import collect_context_payload
 
 
 def read_if_exists(path: Path):
@@ -41,18 +47,9 @@ def main():
     args = parser.parse_args()
 
     root = Path(args.project_root)
-    retriever = root / 'scripts' / 'retrieve_context.py'
-    retrieve_output = root / 'tests' / 'RETRIEVE_CONTEXT_OUTPUT.json'
-
-    if args.task_id and retriever.exists():
-        result = subprocess.run([
-            'python3', str(retriever),
-            '--project-root', str(root),
-            '--task-id', args.task_id,
-        ], capture_output=True, text=True)
-        if result.returncode == 0 and retrieve_output.exists():
-            print(retrieve_output.read_text(encoding='utf-8').strip())
-            return
+    if args.task_id:
+        print(json.dumps(collect_context_payload(root, args.task_id), ensure_ascii=False, indent=2))
+        return
 
     state_first_fallback(root, args.task_id)
 
