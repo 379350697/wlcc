@@ -1,0 +1,4 @@
+# REAL_TASK_CONTEXT_ISOLATION_RESULT
+
+## issues
+- none

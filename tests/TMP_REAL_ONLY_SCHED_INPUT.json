@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "taskId": "real-primary",
+      "status": "todo",
+      "priority": "P1",
+      "dependencies": [],
+      "override": "none",
+      "updatedAt": "2026-04-06 16:15 Asia/Shanghai",
+      "kind": "real",
+      "executionMode": "live",
+      "eligibleForScheduling": true,
+      "isPrimaryTrack": true
+    },
+    {
+      "taskId": "demo-high-priority",
+      "status": "todo",
+      "priority": "P0",
+      "dependencies": [],
+      "override": "none",
+      "updatedAt": "2026-04-06 16:16 Asia/Shanghai",
+      "kind": "demo",
+      "executionMode": "sample-only",
+      "eligibleForScheduling": false,
+      "isPrimaryTrack": false
+    }
+  ]
+}

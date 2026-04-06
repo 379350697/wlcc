@@ -83,8 +83,9 @@ def main():
         for target, count in failure_counter.most_common()
     ]
 
+    loop_history = [step for step in loop_last_run.get('steps', []) if step.get('taskId', '').startswith('real-') or step.get('taskId') == 'real-task-runtime-mainline']
     dashboard = {
-        'loopHistory': loop_last_run.get('steps', []),
+        'loopHistory': loop_history,
         'checkHistory': check_summary.get('checks', []),
         'failureClusters': failure_clusters,
         'retryReorderRollbackHistory': {
@@ -138,6 +139,11 @@ def main():
     lines.append(f"- matchedEvents: {len(retry_reorder_events)}")
     lines.append(f"- rollbackEvents: {len(rollback_events)}")
 
+    lines.append('')
+    lines.append('## runtime_scope')
+    lines.append('- defaultScope: real-task-first')
+    real_failure_clusters = [item for item in failure_clusters if str(item.get('target', '')).startswith('real-')]
+    lines.append(f'- realFailureClusterCount: {len(real_failure_clusters)}')
     lines.append('')
     lines.append('## system_health_summary')
     heartbeat_count = heartbeat_summary.get('historyCount', 0)

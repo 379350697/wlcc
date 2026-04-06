@@ -1,8 +1,6 @@
 {
-  "selectedTaskId": "task-phase2-demo",
+  "selectedTaskId": "task-001",
   "selectionReasons": [
-    "matches-next-task",
-    "matches-current-task",
     "status-doing"
   ],
   "candidateCount": 3,
@@ -28,16 +26,14 @@
   },
   "candidates": [
     {
-      "taskId": "task-phase2-demo",
-      "score": 240,
+      "taskId": "task-001",
+      "score": 50,
       "reasons": [
-        "matches-next-task",
-        "matches-current-task",
         "status-doing"
       ]
     },
     {
-      "taskId": "task-phase2-e2e-single",
+      "taskId": "task-bulk-a",
       "score": 50,
       "reasons": [
         "status-doing"

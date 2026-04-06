@@ -17,14 +17,22 @@ def normalize_task(task, done_ids):
     priority = task.get('priority', 'P2')
     dependencies = task.get('dependencies', [])
     override = task.get('override', 'none')
+    kind = task.get('kind', 'sample')
+    execution_mode = task.get('executionMode', 'sample-only')
+    eligible = task.get('eligibleForScheduling', False)
+    primary = task.get('isPrimaryTrack', False)
     dependency_satisfied = all(dep in done_ids for dep in dependencies)
-    runnable = task['status'] in {'doing', 'todo'} and dependency_satisfied and override != 'force-hold'
+    runnable = task['status'] in {'doing', 'todo'} and dependency_satisfied and override != 'force-hold' and eligible
     forced = override == 'force-run'
     return {
         **task,
         'priority': priority,
         'dependencies': dependencies,
         'override': override,
+        'kind': kind,
+        'executionMode': execution_mode,
+        'eligibleForScheduling': eligible,
+        'isPrimaryTrack': primary,
         'dependencySatisfied': dependency_satisfied,
         'isRunnable': runnable,
         'isForced': forced,
@@ -50,7 +58,13 @@ def choose(tasks):
             'currentStatus': selected['status'],
         }
 
-    active = [t for t in normalized if t['status'] != 'done' and t['override'] != 'force-hold']
+    active = [
+        t for t in normalized
+        if t['status'] != 'done'
+        and t['override'] != 'force-hold'
+        and t.get('eligibleForScheduling', False)
+        and t.get('executionMode', 'sample-only') != 'sample-only'
+    ]
     if not active:
         return {
             'decisionType': 'done-no-next', 'nextTaskId': 'none', 'selectedPriority': 'none',
@@ -58,7 +72,7 @@ def choose(tasks):
             'nextAction': '当前阶段完成。', 'currentTask': 'none', 'currentStatus': 'done'
         }
 
-    sorted_active = sorted(active, key=lambda t: (PRIORITY_ORDER[t['priority']], STATUS_ORDER[t['status']], -parse_time(t['updatedAt']).timestamp()))
+    sorted_active = sorted(active, key=lambda t: (0 if t.get('kind') == 'real' else 1, 0 if t.get('isPrimaryTrack') else 1, PRIORITY_ORDER[t['priority']], STATUS_ORDER[t['status']], -parse_time(t['updatedAt']).timestamp()))
     top = sorted_active[0]
 
     if not top['dependencySatisfied']:

@@ -59,9 +59,11 @@ def main():
     resume_state = read_if_exists(resume_state_output)
 
     task_state_json = read_if_exists(root / '.agent' / 'state' / 'tasks' / f'{args.task_id}.json')
+    task_kind = 'unknown'
     summary_source = 'state-json'
     if task_state_json != 'MISSING':
         parsed = json.loads(task_state_json)
+        task_kind = parsed.get('kind', 'unknown')
         goal = parsed.get('goal', 'MISSING')
         status = parsed.get('status', 'MISSING')
         blocker = parsed.get('blocker', 'MISSING')
@@ -98,6 +100,9 @@ def main():
         '',
         '## retrieved_context',
         retrieved_context,
+        '',
+        '## runtime_meta',
+        json.dumps({'taskKind': task_kind}, ensure_ascii=False, indent=2),
         '',
         '## resume_state',
         resume_state,

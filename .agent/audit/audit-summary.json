@@ -1,0 +1,56 @@
+{
+  "defaultScope": "real-task-first",
+  "realTaskCount": 5,
+  "tasks": [
+    {
+      "taskId": "real-lifecycle-check",
+      "lifecycle": "active",
+      "supervisionState": "active",
+      "scope": "unknown",
+      "lastHeartbeatAt": null,
+      "lastResumeAt": null,
+      "lastHandoffAt": null,
+      "handoffReason": "none"
+    },
+    {
+      "taskId": "real-lifecycle-runtime-integration",
+      "lifecycle": "active",
+      "supervisionState": "active",
+      "scope": "unknown",
+      "lastHeartbeatAt": null,
+      "lastResumeAt": null,
+      "lastHandoffAt": null,
+      "handoffReason": "none"
+    },
+    {
+      "taskId": "real-schema-check",
+      "lifecycle": "ingested",
+      "supervisionState": "ingested",
+      "scope": "unknown",
+      "lastHeartbeatAt": null,
+      "lastResumeAt": null,
+      "lastHandoffAt": null,
+      "handoffReason": "none"
+    },
+    {
+      "taskId": "real-task-runtime-mainline",
+      "lifecycle": "active",
+      "supervisionState": "active",
+      "scope": "real-task-first",
+      "lastHeartbeatAt": "2026-04-06 18:02:04",
+      "lastResumeAt": "2026-04-06 18:02:04",
+      "lastHandoffAt": "2026-04-06 16:36:13",
+      "handoffReason": "scope-view-check"
+    },
+    {
+      "taskId": "real-真实任务接管机制层-p0-启动任务",
+      "lifecycle": "active",
+      "supervisionState": "active",
+      "scope": "unknown",
+      "lastHeartbeatAt": null,
+      "lastResumeAt": null,
+      "lastHandoffAt": null,
+      "handoffReason": "none"
+    }
+  ]
+}

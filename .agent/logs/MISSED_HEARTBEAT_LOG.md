@@ -1,0 +1,2 @@
+- 2026-04-06 16:36:12 | task=real-task-runtime-mainline | reason=blocked-or-waiting-human
+- 2026-04-06 18:02:05 | task=real-task-runtime-mainline | reason=blocked-or-waiting-human

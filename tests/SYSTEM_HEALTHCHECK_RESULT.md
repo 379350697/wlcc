@@ -1,6 +1,6 @@
 # SYSTEM_HEALTHCHECK
 
-- layered_read: PASS
+- retrieval_read: PASS
 - risk_check: PASS
 - audit_summary: PASS
 

@@ -1,0 +1,4 @@
+# TASK_LIFECYCLE_RUNTIME_INTEGRATION_RESULT
+
+## issues
+- none

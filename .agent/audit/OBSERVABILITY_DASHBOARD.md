@@ -1,10 +1,7 @@
 # OBSERVABILITY_DASHBOARD
 
 ## loop_history
-- steps: 1
-- lastTask: task-phase2-demo
-- lastFailureControl: continue
-- lastRiskEscalation: continue
+- none
 
 ## check_history
 - state_view_consistency: pass
@@ -22,9 +19,13 @@
 - matchedEvents: 0
 - rollbackEvents: 0
 
+## runtime_scope
+- defaultScope: real-task-first
+- realFailureClusterCount: 0
+
 ## system_health_summary
-- heartbeatHistoryCount: 0
-- heartbeatRequiresHumanCount: 0
-- eventCount: 77
+- heartbeatHistoryCount: 59
+- heartbeatRequiresHumanCount: 12
+- eventCount: 81
 - checkFailureCount: 5
 - systemHealthcheck: - PASS

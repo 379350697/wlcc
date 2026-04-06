@@ -52,11 +52,14 @@ def main():
 
     canonical_found = False
     markdown_fallback_used = False
+    current_task_kind = 'unknown'
     for path in task_state_sources:
         content = read_text(path)
         if content:
             if path.suffix == '.json':
                 parsed = json.loads(content)
+                if path.name == f'{args.task_id}.json':
+                    current_task_kind = parsed.get('kind', 'unknown')
                 result['task_state'].append({'source': str(path.relative_to(root)), 'content': parsed})
                 canonical_found = True
             else:
@@ -77,6 +80,7 @@ def main():
         'priority': ['facts', 'task_state', 'summary', 'chat'],
         'usedSources': used,
         'degradedFallback': degraded,
+        'taskKind': current_task_kind,
     }
 
     out = root / 'tests' / 'RETRIEVE_CONTEXT_OUTPUT.json'

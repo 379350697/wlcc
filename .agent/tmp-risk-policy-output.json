@@ -1,0 +1,16 @@
+{
+  "riskLevel": "L1",
+  "decision": "allow",
+  "reason": "项目内状态写入允许。",
+  "matchedRule": {
+    "action": "write-state",
+    "scope": "*",
+    "targetType": "*",
+    "pathPrefix": "*",
+    "matchContext": {},
+    "conditionOverride": false
+  },
+  "action": "write-state",
+  "scope": "project",
+  "policyVersion": "phase2-v2"
+}

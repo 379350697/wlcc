@@ -1,10 +1,10 @@
 # NEXT_TASK
 
-- currentTask: task-phase2-demo
+- currentTask: real-task-runtime-mainline
 - currentStatus: doing
 - decisionType: continue-current
-- nextTaskId: task-phase2-demo
-- selectedPriority: P1
+- nextTaskId: real-task-runtime-mainline
+- selectedPriority: P0
 - dependencyStatus: satisfied
 - overrideStatus: none
 - reason: 按 priority/status/updatedAt 选出最高优先任务。

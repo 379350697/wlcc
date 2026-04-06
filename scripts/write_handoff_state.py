@@ -38,8 +38,17 @@ def main():
     resume_state_path = root / '.agent' / 'state' / f'{args.task_id}-resume-state.json'
     next_task_path = root / '.agent' / 'state' / 'next-task.json'
 
+    task_path = root / '.agent' / 'state' / 'tasks' / f'{args.task_id}.json'
+    task_kind = 'unknown'
+    if task_path.exists():
+        try:
+            task_kind = json.loads(task_path.read_text(encoding='utf-8')).get('kind', 'unknown')
+        except Exception:
+            task_kind = 'unknown'
+
     ownership = {
         'taskId': args.task_id,
+        'taskKind': task_kind,
         'owner': args.owner,
         'executor': args.executor,
         'reviewer': args.reviewer,
@@ -48,6 +57,7 @@ def main():
     }
     handoff = {
         'taskId': args.task_id,
+        'taskKind': task_kind,
         'fromAgent': args.from_agent,
         'toAgent': args.to_agent,
         'reason': args.reason,
@@ -69,12 +79,14 @@ def main():
     lines = ['# HANDOFF_OUTPUT', '']
     lines.append('## ownership')
     lines.append(f'- taskId: {ownership["taskId"]}')
+    lines.append(f'- taskKind: {ownership["taskKind"]}')
     lines.append(f'- owner: {ownership["owner"]}')
     lines.append(f'- executor: {ownership["executor"]}')
     lines.append(f'- reviewer: {ownership["reviewer"]}')
     lines.append(f'- updatedAt: {ownership["updatedAt"]}')
     lines.append('')
     lines.append('## handoff')
+    lines.append(f'- taskKind: {handoff["taskKind"]}')
     lines.append(f'- fromAgent: {handoff["fromAgent"]}')
     lines.append(f'- toAgent: {handoff["toAgent"]}')
     lines.append(f'- reason: {handoff["reason"]}')

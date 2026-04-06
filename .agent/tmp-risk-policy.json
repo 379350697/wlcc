@@ -1,0 +1,8 @@
+{
+  "action": "write-state",
+  "scope": "project",
+  "context": {
+    "userApproved": false,
+    "requiresConfirmation": false
+  }
+}

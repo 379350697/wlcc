@@ -24,6 +24,15 @@ def main():
     parser.add_argument('--last-success', required=True)
     parser.add_argument('--last-failure', required=True)
     parser.add_argument('--updated-at', required=True)
+    parser.add_argument('--kind', default='sample')
+    parser.add_argument('--source', default='legacy')
+    parser.add_argument('--execution-mode', default='sample-only')
+    parser.add_argument('--owner-context', default='unknown')
+    parser.add_argument('--supervision-state', default='legacy')
+    parser.add_argument('--eligible-for-scheduling', choices=['true', 'false'], default='false')
+    parser.add_argument('--is-primary-track', choices=['true', 'false'], default='false')
+    parser.add_argument('--lifecycle', default='legacy')
+    parser.add_argument('--title', default='')
     args = parser.parse_args()
 
     if args.status not in ALLOWED_STATUS:
@@ -52,6 +61,15 @@ def main():
         'lastSuccess': args.last_success,
         'lastFailure': args.last_failure,
         'updatedAt': args.updated_at,
+        'kind': args.kind,
+        'source': args.source,
+        'executionMode': args.execution_mode,
+        'ownerContext': args.owner_context,
+        'supervisionState': args.supervision_state,
+        'eligibleForScheduling': args.eligible_for_scheduling == 'true',
+        'isPrimaryTrack': args.is_primary_track == 'true',
+        'lifecycle': args.lifecycle,
+        'title': args.title,
     }
     task_path.write_text(json.dumps(task, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 

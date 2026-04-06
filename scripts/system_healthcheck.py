@@ -1,14 +1,47 @@
 #!/usr/bin/env python3
+import argparse
+import json
 from pathlib import Path
 import subprocess
 
 root = Path(__file__).resolve().parent.parent
 results = []
 
-# 1. retrieval-based read
-read_cmd = ['python3', str(root / 'scripts' / 'retrieve_context.py'), '--project-root', str(root), '--task-id', 'task-phase2-demo']
-read_res = subprocess.run(read_cmd, capture_output=True, text=True)
-results.append(('retrieval_read', read_res.returncode == 0))
+parser = argparse.ArgumentParser(description='Run release system healthcheck.')
+parser.add_argument('--task-id')
+args = parser.parse_args()
+
+def detect_task_id():
+    if args.task_id:
+        return args.task_id
+    next_task = root / '.agent' / 'state' / 'next-task.json'
+    if next_task.exists():
+        try:
+            data = json.loads(next_task.read_text(encoding='utf-8'))
+            if data.get('currentTask'):
+                return data['currentTask']
+            if data.get('nextTaskId'):
+                return data['nextTaskId']
+        except Exception:
+            pass
+    index_path = root / '.agent' / 'state' / 'index.json'
+    if index_path.exists():
+        try:
+            data = json.loads(index_path.read_text(encoding='utf-8'))
+            tasks = data.get('tasks', [])
+            if tasks:
+                return tasks[0]
+        except Exception:
+            pass
+    return None
+
+task_id = detect_task_id()
+if task_id:
+    read_cmd = ['python3', str(root / 'scripts' / 'retrieve_context.py'), '--project-root', str(root), '--task-id', task_id]
+    read_res = subprocess.run(read_cmd, capture_output=True, text=True)
+    results.append(('retrieval_read', read_res.returncode == 0))
+else:
+    results.append(('retrieval_read', False))
 
 # 2. risk check
 risk_cmd = ['python3', str(root / 'scripts' / 'check_risk_level.py'), '--action', 'write-state']

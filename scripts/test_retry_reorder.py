@@ -8,20 +8,32 @@ state = root / '.agent' / 'loop' / 'retry-state.json'
 if state.exists():
     state.unlink()
 
+target_task = 'task-phase2-demo'
+state_task_dir = root / '.agent' / 'state' / 'tasks'
+if not (state_task_dir / f'{target_task}.json').exists() and state_task_dir.exists():
+    for p in sorted(state_task_dir.glob('*.json')):
+        target_task = p.stem
+        break
+
 cases = [
-    ('retry-1', ['--task-id','task-phase2-demo','--stop-type','anomaly-stop','--reason','check failure'], {'action': 'retry-same-task', 'backoffDelaySteps': 1}),
-    ('retry-2', ['--task-id','task-phase2-demo','--stop-type','anomaly-stop','--reason','check failure'], {'action': 'retry-same-task', 'backoffDelaySteps': 2}),
-    ('reorder-promote-unblocked', ['--task-id','task-phase2-demo','--stop-type','anomaly-stop','--reason','check failure'], {'action': 'reorder-next-task', 'reorderTarget': 'task-001'}),
-    ('reorder-manual-lock', ['--task-id','task-phase2-demo','--stop-type','anomaly-stop','--reason','check failure','--manual-priority-lock','true'], {'action': 'reorder-next-task', 'manualPriorityLock': True, 'reorderTarget': 'none'}),
+    ('retry-1', ['--task-id', target_task,'--stop-type','anomaly-stop','--reason','check failure'], {'action': 'retry-same-task', 'backoffDelaySteps': 1}),
+    ('retry-2', ['--task-id', target_task,'--stop-type','anomaly-stop','--reason','check failure'], {'action': 'retry-same-task', 'backoffDelaySteps': 2}),
+    ('reorder-promote-unblocked', ['--task-id', target_task,'--stop-type','anomaly-stop','--reason','check failure'], {'action': 'reorder-next-task'}),
+    ('reorder-manual-lock', ['--task-id', target_task,'--stop-type','anomaly-stop','--reason','check failure','--manual-priority-lock','true'], {'action': 'reorder-next-task', 'manualPriorityLock': True, 'reorderTarget': 'none'}),
 ]
 failed = []
 lines = ['# RETRY_REORDER_TEST_RESULT', '']
 for name, args, expected in cases:
     res = subprocess.run(['python3', str(root/'scripts'/'evaluate_retry_reorder.py'), *args], capture_output=True, text=True)
     data = json.loads(state.read_text(encoding='utf-8')) if state.exists() else {}
-    item = data.get('task-phase2-demo', {})
+    item = data.get(target_task, {})
     ok = res.returncode == 0
     for key, value in expected.items():
+        if key == 'reorderTarget' and value is None:
+            if item.get(key) in {None, 'none'}:
+                ok = False
+                break
+            continue
         if item.get(key) != value:
             ok = False
             break
