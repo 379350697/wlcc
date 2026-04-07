@@ -28,13 +28,15 @@ if fail.returncode == 0:
 progress = subprocess.run([
     'python3', str(root / 'scripts' / 'progress_task_runtime.py'),
     '--task-id', task_id,
-    '--latest-result', 'close runtime target 已补齐 state-update 并进入 verify。',
+    '--latest-result', 'scripts/close_task_runtime.py close runtime target 已补齐 final-result / gap-check / status-update / state-update 并进入 verify。',
     '--next-step', '执行 close_task_runtime 收口。',
     '--blocker', '无',
-    '--status', 'doing',
-    '--lifecycle', 'active',
+    '--status', 'verify',
     '--phase', 'verify',
     '--evidence-id', 'state-update',
+    '--evidence-id', 'final-result',
+    '--evidence-id', 'gap-check',
+    '--evidence-id', 'status-update',
     '--changed-file', 'scripts/close_task_runtime.py',
 ], capture_output=True, text=True)
 if progress.returncode != 0:

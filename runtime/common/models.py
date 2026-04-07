@@ -55,6 +55,10 @@ class TaskState:
     maxTurns: int = 8
     maxMinutes: int = 20
     turnCount: int = 0
+    riskLevel: str = "medium"
+    estimatedTurns: int = 0
+    estimatedMinutes: int = 0
+    splitConfidence: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -91,4 +95,8 @@ class TaskState:
             "maxTurns": self.maxTurns,
             "maxMinutes": self.maxMinutes,
             "turnCount": self.turnCount,
+            "riskLevel": self.riskLevel,
+            "estimatedTurns": self.estimatedTurns,
+            "estimatedMinutes": self.estimatedMinutes,
+            "splitConfidence": self.splitConfidence,
         }

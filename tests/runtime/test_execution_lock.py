@@ -113,3 +113,41 @@ def test_choose_next_task_does_not_jump_to_parent_task_while_leaf_open():
 
     assert result["nextTaskId"] == "0.1"
     assert result["decisionType"] == "continue-current-leaf"
+
+
+def test_choose_next_task_does_not_schedule_draft_leaf():
+    tasks = [
+        {
+            "taskId": "0.1",
+            "status": "draft",
+            "taskLevel": "leaf",
+            "phase": "analyze",
+            "priority": "P0",
+            "dependencies": [],
+            "override": "none",
+            "kind": "real",
+            "executionMode": "live",
+            "eligibleForScheduling": True,
+            "isPrimaryTrack": True,
+            "updatedAt": "2026-04-07T10:00:00",
+        },
+        {
+            "taskId": "0.2",
+            "status": "ready",
+            "taskLevel": "leaf",
+            "phase": "analyze",
+            "priority": "P0",
+            "dependencies": [],
+            "override": "none",
+            "kind": "real",
+            "executionMode": "live",
+            "eligibleForScheduling": True,
+            "isPrimaryTrack": True,
+            "updatedAt": "2026-04-07T10:01:00",
+        },
+    ]
+
+    result = choose_next_task(tasks)
+
+    assert result["nextTaskId"] == "0.2"
+    assert result["currentStatus"] == "ready"

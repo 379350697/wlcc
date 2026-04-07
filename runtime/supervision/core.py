@@ -81,9 +81,11 @@ def get_latest_heartbeat_time(root: Path, task_id: str):
 
 def build_progress_snapshot(task: dict, root: Path) -> dict:
     task_id = task['taskId']
+    ledger_entries = load_evidence_entries(root, task_id)
+    ledger_tests = load_evidence_entries(root, task_id, {'test-run'})
     return {
-        'evidenceCount': len(load_evidence_entries(root, task_id)),
-        'testsCount': len(task.get('testsRun', []) or []),
+        'evidenceCount': len(ledger_entries),
+        'testsCount': max(len(task.get('testsRun', []) or []), len(ledger_tests)),
         'phase': str(task.get('phase', '') or ''),
         'turnCount': int(task.get('turnCount', 0) or 0),
     }
@@ -142,8 +144,10 @@ def judge_progress(task: dict, root: Path, supervision: dict | None = None) -> d
 
 
 def run_handoff(root: Path, task: dict):
+    script_root = Path(__file__).resolve().parents[2]
     subprocess.run([
-        'python3', str(root / 'scripts' / 'write_handoff_state.py'),
+        'python3', str(script_root / 'scripts' / 'write_handoff_state.py'),
+        '--project-root', str(root),
         '--task-id', task['taskId'],
         '--owner', task.get('ownerContext', 'unknown'),
         '--executor', 'coder',
@@ -352,7 +356,7 @@ def handle_supervision_trigger(root: Path, task_id: str, trigger: str) -> dict:
             append_log(missed_log, f"- {now_text()} | task={task_id} | reason=blocked-or-waiting-human")
         elif weak_progress_count >= WEAK_PROGRESS_INTERVAL_LIMIT:
             failure_verdict = route_failure('supervision', {'allowed': False, 'reason': 'weak-progress', 'checks': ['weak-progress']})
-            supervision['status'] = 'resume-prepared'
+            supervision['status'] = 'waiting-human'
             supervision['blockReason'] = 'weak-progress'
             supervision['lastFailureDecision'] = failure_verdict.to_dict()
             record_evidence(

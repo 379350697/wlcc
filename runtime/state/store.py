@@ -7,7 +7,18 @@ from runtime.contracts.task_contract import normalize_contract_dict, validate_co
 from runtime.common.paths import RuntimePaths
 
 
-ALLOWED_STATUS = {"todo", "doing", "blocked", "done"}
+ALLOWED_STATUS = {
+    "todo",
+    "doing",
+    "blocked",
+    "done",
+    "draft",
+    "ready",
+    "running",
+    "verify",
+    "closed",
+    "waiting-human",
+}
 ALLOWED_PRIORITY = {"P0", "P1", "P2", "P3"}
 ALLOWED_OVERRIDE = {"none", "force-run", "force-hold"}
 

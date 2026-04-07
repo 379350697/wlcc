@@ -8,10 +8,28 @@ from runtime.common.paths import RuntimePaths
 from runtime.state.store import load_task_state, resolve_task_id
 
 
-ALLOWED = {"new", "ingested", "active", "blocked", "waiting-human", "handoff", "done", "archived", "legacy"}
+MECHANIZED = {"draft", "ready", "running", "verify", "closed"}
+
+
+ALLOWED = {
+    "new",
+    "ingested",
+    "active",
+    "blocked",
+    "waiting-human",
+    "handoff",
+    "done",
+    "archived",
+    "legacy",
+    "draft",
+    "ready",
+    "running",
+    "verify",
+    "closed",
+}
 TRANSITIONS = {
     "new": {"ingested"},
-    "ingested": {"active", "blocked", "waiting-human", "handoff"},
+    "ingested": {"active", "ready", "blocked", "waiting-human", "handoff"},
     "active": {"blocked", "waiting-human", "handoff", "done"},
     "blocked": {"active", "waiting-human", "handoff"},
     "waiting-human": {"active", "handoff", "done"},
@@ -19,6 +37,11 @@ TRANSITIONS = {
     "done": {"archived"},
     "archived": set(),
     "legacy": {"ingested", "active", "blocked", "waiting-human", "handoff", "done"},
+    "draft": {"ready", "blocked", "waiting-human"},
+    "ready": {"running", "blocked", "waiting-human", "handoff"},
+    "running": {"verify", "blocked", "waiting-human", "handoff", "closed"},
+    "verify": {"running", "blocked", "waiting-human", "handoff", "closed"},
+    "closed": {"archived"},
 }
 SUPERVISION_MAP = {
     "new": "new",
@@ -30,8 +53,13 @@ SUPERVISION_MAP = {
     "done": "done",
     "archived": "archived",
     "legacy": "legacy",
+    "draft": "ingested",
+    "ready": "ready",
+    "running": "active",
+    "verify": "active",
+    "closed": "done",
 }
-DELIVERY_REQUIRED_TARGETS = {"done", "handoff"}
+DELIVERY_REQUIRED_TARGETS = {"done", "handoff", "closed"}
 
 
 EMPTY_PHRASES = frozenset({
@@ -158,12 +186,19 @@ def transition_lifecycle(paths: RuntimePaths, task_id: str, target: str) -> tupl
             raise SystemExit(result["reason"])
 
     task["lifecycle"] = target
+    if target in MECHANIZED | {"blocked", "waiting-human"}:
+        task["status"] = target
+    elif target == "done" and str(task.get("status", "")).strip() != "closed":
+        task["status"] = "done"
     task["supervisionState"] = SUPERVISION_MAP[target]
-    if target == "archived":
+    if target in {"closed", "archived"}:
         task["eligibleForScheduling"] = False
-        task["isPrimaryTrack"] = False
-    elif target in {"ingested", "active", "blocked", "waiting-human", "handoff"} and task.get("kind") == "real":
+        if target == "archived":
+            task["isPrimaryTrack"] = False
+    elif target in {"ingested", "active", "ready", "running", "verify", "blocked", "waiting-human", "handoff"} and task.get("kind") == "real":
         task["eligibleForScheduling"] = target in {"ingested", "active", "blocked", "waiting-human", "handoff"}
+        if target in {"ready", "running", "verify"}:
+            task["eligibleForScheduling"] = True
     task["updatedAt"] = now_iso()
     task_path = paths.tasks_state_dir / f"{resolved_task_id}.json"
     write_json(task_path, task)

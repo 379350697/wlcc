@@ -89,3 +89,41 @@ def test_build_next_task_from_state_dir_writes_state_and_view(tmp_path: Path):
     assert input_file.exists()
     assert '"nextTaskId": "task-a"' in next_state.read_text(encoding='utf-8')
     assert '- nextTaskId: task-a' in render_next_task_view(result) or '- nextTaskId: task-a' in next_view.read_text(encoding='utf-8')
+
+
+def test_choose_next_task_only_releases_next_leaf_after_closed_status():
+    tasks = [
+        {
+            'taskId': 'leaf-current',
+            'status': 'closed',
+            'priority': 'P0',
+            'dependencies': [],
+            'override': 'none',
+            'kind': 'real',
+            'taskLevel': 'leaf',
+            'phase': 'verify',
+            'executionMode': 'live',
+            'eligibleForScheduling': False,
+            'isPrimaryTrack': True,
+            'updatedAt': '2026-04-06T21:17:52',
+        },
+        {
+            'taskId': 'leaf-next',
+            'status': 'ready',
+            'priority': 'P0',
+            'dependencies': [],
+            'override': 'none',
+            'kind': 'real',
+            'taskLevel': 'leaf',
+            'phase': 'analyze',
+            'executionMode': 'live',
+            'eligibleForScheduling': True,
+            'isPrimaryTrack': True,
+            'updatedAt': '2026-04-06T21:18:52',
+        },
+    ]
+
+    result = choose_next_task(tasks)
+
+    assert result['nextTaskId'] == 'leaf-next'
+    assert result['decisionType'] == 'switch-next'

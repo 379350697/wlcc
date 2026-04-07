@@ -5,7 +5,22 @@ from pathlib import Path
 from runtime.sidecar.tasks_view import write_state_views
 
 PRIORITY_ORDER = {'P0': 0, 'P1': 1, 'P2': 2, 'P3': 3}
-STATUS_ORDER = {'doing': 0, 'todo': 1, 'blocked': 2, 'done': 3}
+STATUS_ORDER = {
+    'running': 0,
+    'verify': 1,
+    'doing': 1,
+    'ready': 2,
+    'todo': 2,
+    'blocked': 3,
+    'waiting-human': 4,
+    'draft': 5,
+    'closed': 6,
+    'done': 6,
+}
+OPEN_LEAF_STATUSES = {'running', 'verify', 'doing', 'blocked', 'waiting-human'}
+READY_STATUSES = {'ready', 'todo'}
+CLOSED_STATUSES = {'closed', 'done'}
+NON_SCHEDULABLE_STATUSES = {'draft'}
 
 
 def parse_time(text: str) -> datetime:
@@ -70,9 +85,10 @@ def normalize_task(task: dict, done_ids: set[str]) -> dict:
     execution_mode = task.get('executionMode', 'live')
     eligible = task.get('eligibleForScheduling', True)
     primary = task.get('isPrimaryTrack', False)
+    status = task.get('status', 'todo')
     dependency_satisfied = all(dep in done_ids for dep in dependencies)
     runnable = (
-        task.get('status') in {'doing', 'todo'}
+        status in OPEN_LEAF_STATUSES | READY_STATUSES
         and dependency_satisfied
         and override != 'force-hold'
         and eligible
@@ -89,6 +105,7 @@ def normalize_task(task: dict, done_ids: set[str]) -> dict:
         'executionMode': execution_mode,
         'eligibleForScheduling': eligible,
         'isPrimaryTrack': primary,
+        'status': status,
         'dependencySatisfied': dependency_satisfied,
         'isRunnable': runnable,
         'isForced': forced,
@@ -100,14 +117,14 @@ def build_next_task_payload(tasks: list[dict]) -> dict:
 
 
 def choose_next_task(tasks: list[dict]) -> dict:
-    done_ids = {t['taskId'] for t in tasks if t.get('status') == 'done'}
+    done_ids = {t['taskId'] for t in tasks if t.get('status') in CLOSED_STATUSES}
     normalized = [normalize_task(t, done_ids) for t in tasks]
 
     open_leaf = sorted(
         [
             t for t in normalized
             if t.get('taskLevel') == 'leaf'
-            and t['status'] in {'doing', 'blocked'}
+            and t['status'] in OPEN_LEAF_STATUSES
             and t['override'] != 'force-hold'
             and t.get('eligibleForScheduling', False)
             and t.get('executionMode', 'sample-only') != 'sample-only'
@@ -157,7 +174,7 @@ def choose_next_task(tasks: list[dict]) -> dict:
 
     active = [
         t for t in normalized
-        if t['status'] != 'done'
+        if t['status'] not in CLOSED_STATUSES | NON_SCHEDULABLE_STATUSES
         and t['override'] != 'force-hold'
         and t.get('eligibleForScheduling', False)
         and t.get('executionMode', 'sample-only') != 'sample-only'
@@ -200,10 +217,10 @@ def choose_next_task(tasks: list[dict]) -> dict:
             'currentStatus': top['status'],
         }
 
-    if top['status'] == 'doing':
+    if top['status'] in {'running', 'verify', 'doing'}:
         decision = 'continue-current'
         action = '继续执行当前优先任务。'
-    elif top['status'] == 'todo':
+    elif top['status'] in READY_STATUSES:
         decision = 'switch-next'
         action = '切换到下一优先任务。'
     else:

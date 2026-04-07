@@ -70,7 +70,7 @@ def test_interval_escalates_after_repeated_no_progress(tmp_path: Path):
 
     supervision = handle_supervision_trigger(tmp_path, task['taskId'], 'on_interval')
 
-    assert supervision['status'] == 'resume-prepared'
+    assert supervision['status'] == 'waiting-human'
     assert supervision['blockReason'] == 'weak-progress'
     assert supervision['lastFailureDecision']['failure_class'] == 'weak_progress'
     assert get_runtime_events()[-1].payload['failureClass'] == 'weak_progress'

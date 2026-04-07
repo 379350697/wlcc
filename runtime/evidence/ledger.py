@@ -182,3 +182,72 @@ def load_evidence_entries(
             }
         )
     return entries
+
+
+def record_progress_entries(
+    root: Path,
+    task_id: str,
+    *,
+    latest_result: str,
+    next_step: str,
+    changed_files: list[str],
+    tests_run: list[str],
+    evidence_ids: list[str],
+    phase: str,
+    status: str,
+    lifecycle: str,
+    turn_count: int,
+) -> EvidenceLedger:
+    ledger = append_evidence_record(
+        root,
+        task_id,
+        {
+            "evidenceType": "progress-update",
+            "source": "runtime.progress_runtime.apply_progress_update",
+            "summary": latest_result,
+            "details": {
+                "nextStep": next_step,
+                "phase": phase,
+                "status": status,
+                "lifecycle": lifecycle,
+                "turnCount": turn_count,
+                "changedFiles": list(changed_files),
+                "testsRun": list(tests_run),
+                "evidenceIds": list(evidence_ids),
+            },
+        },
+    )
+    for path in changed_files:
+        ledger = append_evidence_record(
+            root,
+            task_id,
+            {
+                "evidenceType": "file-change",
+                "source": "runtime.progress_runtime.apply_progress_update",
+                "summary": path,
+                "details": {"path": path},
+            },
+        )
+    for test in tests_run:
+        ledger = append_evidence_record(
+            root,
+            task_id,
+            {
+                "evidenceType": "test-run",
+                "source": "runtime.progress_runtime.apply_progress_update",
+                "summary": test,
+                "details": {"command": test},
+            },
+        )
+    for artifact in evidence_ids:
+        ledger = append_evidence_record(
+            root,
+            task_id,
+            {
+                "evidenceType": "artifact-emitted",
+                "source": "runtime.progress_runtime.apply_progress_update",
+                "summary": artifact,
+                "details": {"artifactId": artifact},
+            },
+        )
+    return ledger

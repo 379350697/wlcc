@@ -8,13 +8,11 @@ root = Path(__file__).resolve().parent.parent
 if str(root) not in sys.path:
     sys.path.insert(0, str(root))
 
-from runtime.common.io import read_json, write_json
+from runtime.common.io import read_json
 from runtime.common.paths import RuntimePaths
-from runtime.common.time import now_iso
 from runtime.contracts.task_contract import normalize_contract_dict
-from runtime.gates.delivery import evaluate_delivery_gate
-from runtime.gates.progress import evaluate_progress_gate
 from runtime.harness.task_harness import HarnessResult
+from runtime.progress_runtime import apply_progress_update
 from runtime.scheduling.next_task import build_next_task_from_state_dir
 from runtime.state.lifecycle import transition_lifecycle
 from runtime.state.store import resolve_task_id
@@ -52,28 +50,20 @@ def main():
     if args.turn_delta < 0:
         raise SystemExit('[progress runtime] rejected: turn-delta must be non-negative')
 
-    delivery_result = evaluate_delivery_gate(resolved_task_id, args.latest_result, root, task.get('kind', 'sample'))
-    if not delivery_result['passed']:
-        raise SystemExit(f"[delivery gate] rejected: {delivery_result['reason']}")
-
-    progress_result = evaluate_progress_gate(args.latest_result, args.next_step)
-    if not progress_result['passed']:
-        raise SystemExit(f"[progress reply gate] rejected: {progress_result['reason']}")
-
-    task['latestResult'] = args.latest_result
-    task['nextStep'] = args.next_step
-    task['blocker'] = args.blocker
-    task['updatedAt'] = now_iso()
-    task['phase'] = args.phase or task.get('phase', 'analyze')
-    task['turnCount'] = int(task.get('turnCount', 0)) + args.turn_delta
-    if task['turnCount'] > int(task.get('maxTurns', 8)):
-        raise SystemExit(f"[progress runtime] rejected: turn budget exceeded ({task['turnCount']}/{task.get('maxTurns', 8)})")
-    task['changedFiles'] = changed_files
-    task['testsRun'] = tests_run
-    task['evidenceIds'] = evidence_ids
-    if args.status:
-        task['status'] = args.status
-    write_json(task_path, task)
+    result = apply_progress_update(
+        root,
+        args.task_id,
+        latest_result=args.latest_result,
+        next_step=args.next_step,
+        blocker=args.blocker,
+        phase=args.phase,
+        turn_delta=args.turn_delta,
+        changed_files=changed_files,
+        tests_run=tests_run,
+        evidence_ids=evidence_ids,
+        status=args.status,
+    )
+    delivery_result = result['deliveryResult']
 
     build_next_task_from_state_dir(
         paths.tasks_state_dir,

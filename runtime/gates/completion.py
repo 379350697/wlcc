@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from runtime.gates.closure_artifacts import evaluate_closure_artifacts
+
 
 def _normalize_list(values) -> list[str]:
     normalized = []
@@ -33,6 +35,10 @@ def evaluate_completion_gate(task: dict, payload: dict) -> dict:
     violations = []
     if phase != "verify":
         violations.append("task phase must be verify before completion")
+
+    closure_result = evaluate_closure_artifacts(task, payload)
+    if not closure_result["passed"]:
+        violations.extend(closure_result["violations"])
 
     missing_evidence = sorted(required_evidence - evidence_ids)
     if missing_evidence:

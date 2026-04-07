@@ -37,11 +37,10 @@ if bad.returncode == 0:
 res = subprocess.run([
     'python3', str(root / 'scripts' / 'progress_task_runtime.py'),
     '--task-id', task_id,
-    '--latest-result', 'Task 3.1 已进入统一推进入口验证，并记录 state-update。',
+    '--latest-result', 'scripts/progress_task_runtime.py Task 3.1 已进入统一推进入口验证，并记录 state-update。',
     '--next-step', '继续推进 Task 3.2 resume_real_task.py。',
     '--blocker', '无',
-    '--status', 'doing',
-    '--lifecycle', 'active',
+    '--status', 'verify',
     '--phase', 'verify',
     '--evidence-id', 'state-update',
     '--changed-file', 'scripts/progress_task_runtime.py',
@@ -54,12 +53,16 @@ if not state.exists():
     issues.append('missing real-progress-runtime-target state')
 else:
     data = json.loads(state.read_text(encoding='utf-8'))
-    if data.get('latestResult') != 'Task 3.1 已进入统一推进入口验证，并记录 state-update。':
+    if data.get('latestResult') != 'scripts/progress_task_runtime.py Task 3.1 已进入统一推进入口验证，并记录 state-update。':
         issues.append('latestResult not updated')
     if data.get('nextStep') != '继续推进 Task 3.2 resume_real_task.py。':
         issues.append('nextStep not updated')
     if data.get('phase') != 'verify':
         issues.append('phase not updated')
+    if data.get('status') != 'verify':
+        issues.append('status not updated to verify')
+    if data.get('lifecycle') != 'verify':
+        issues.append('lifecycle not updated to verify')
     if data.get('evidenceIds') != ['state-update']:
         issues.append('evidenceIds not updated')
     if data.get('changedFiles') != ['scripts/progress_task_runtime.py']:

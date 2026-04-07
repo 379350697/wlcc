@@ -7,7 +7,10 @@ from pathlib import Path
 def _read_json(path: Path, default):
     if not path.exists():
         return default
-    return json.loads(path.read_text(encoding='utf-8'))
+    try:
+        return json.loads(path.read_text(encoding='utf-8'))
+    except json.JSONDecodeError:
+        return default
 
 
 def build_human_summary(heartbeat: dict) -> str:

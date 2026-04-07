@@ -9,6 +9,7 @@ root = Path(__file__).resolve().parent.parent
 CHECKS = [
     ("bootstrap-fixtures", ["python3", str(root / "scripts" / "bootstrap_runtime_fixtures.py")]),
     ("control-plane-smoke", ["python3", str(root / "scripts" / "test_control_plane_smoke.py")]),
+    ("mechanized-execution-e2e", ["python3", "-m", "pytest", "tests/runtime/test_mechanized_execution_e2e.py", "-q"]),
     ("runtime-pytest", ["python3", "-m", "pytest", "tests/runtime", "-q"]),
     ("tool-harness", ["python3", str(root / "scripts" / "test_tool_harness.py")]),
     ("progress-task-runtime", ["python3", str(root / "scripts" / "test_progress_task_runtime.py")]),

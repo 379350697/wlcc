@@ -74,7 +74,7 @@ def main():
         taskId=task_id,
         project=project_root.name,
         goal=args.goal,
-        status='doing',
+        status='ready',
         priority=args.priority,
         dependencies=[],
         override='none',
@@ -126,7 +126,7 @@ def main():
     )
     write_state_views(paths.tasks_state_dir, paths.agent_dir / 'tasks', paths.agent_dir / 'resume', project_root / 'TASKS.md')
     write_resume_output(project_root, task_id)
-    transition_lifecycle(paths, task_id, 'active')
+    transition_lifecycle(paths, task_id, 'ready')
 
     out = project_root / 'tests' / 'INGEST_REAL_TASK_RESULT.md'
     lines = ['# INGEST_REAL_TASK_RESULT', '', '## summary']
@@ -137,7 +137,7 @@ def main():
     lines.append(f'- source: {args.source}')
     lines.append(f'- executionMode: {args.execution_mode}')
     lines.append(f'- ownerContext: {args.owner_context}')
-    lines.append('- lifecycle: ingested')
+    lines.append('- lifecycle: ready')
     lines.append('- eligibleForScheduling: true')
     lines.append('- isPrimaryTrack: true')
     lines.append(f"- taskLevel: {contract['taskLevel']}")

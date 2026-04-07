@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-root = Path(__file__).resolve().parent.parent
+default_root = Path(__file__).resolve().parent.parent
 
 
 def now_text():
@@ -13,6 +13,7 @@ def now_text():
 
 def main():
     parser = argparse.ArgumentParser(description='Write ownership + handoff state for multi-agent workflow.')
+    parser.add_argument('--project-root', default=str(default_root))
     parser.add_argument('--task-id', required=True)
     parser.add_argument('--owner', default='unassigned')
     parser.add_argument('--executor', default='unassigned')
@@ -25,6 +26,7 @@ def main():
     parser.add_argument('--requires-human', action='store_true')
     parser.add_argument('--notes', default='none')
     args = parser.parse_args()
+    root = Path(args.project_root).resolve()
 
     updated_at = now_text()
 
