@@ -17,6 +17,9 @@ def make_task(root: Path, task_id: str = 'demo-task', **overrides):
         'nextStep': 'continue',
         'blocker': 'none',
         'supervisionState': 'active',
+        'phase': 'implement',
+        'turnCount': 0,
+        'testsRun': [],
     }
     payload.update(overrides)
     save_json(task_path, payload)
@@ -73,3 +76,32 @@ def test_supervision_emits_events_for_ingest_and_completion(tmp_path: Path, monk
     assert any(event.event_type == 'supervision.completion_handoff' for event in get_runtime_events())
     evidence = load_evidence_entries(tmp_path, task['taskId'], {'heartbeat-fresh', 'handoff-emitted'})
     assert {item['type'] for item in evidence} == {'heartbeat-fresh', 'handoff-emitted'}
+
+
+def test_supervision_marks_weak_progress_and_emits_failure_class(tmp_path: Path):
+    task = make_task(tmp_path, turnCount=2, phase='implement')
+    supervision_path = tmp_path / '.agent' / 'state' / 'supervision' / f"{task['taskId']}.json"
+    save_json(
+        supervision_path,
+        {
+            'taskId': task['taskId'],
+            'status': 'active',
+            'lastEvidenceCount': 0,
+            'lastTestsCount': 0,
+            'lastPhase': 'implement',
+            'lastTurnCount': 1,
+            'weakProgressCount': 0,
+        },
+    )
+
+    try:
+        handle_supervision_trigger(tmp_path, task['taskId'], 'on_task_changed')
+    except SystemExit:
+        pass
+
+    supervision = json.loads(supervision_path.read_text(encoding='utf-8'))
+    assert supervision['status'] == 'resume-prepared'
+    assert supervision['blockReason'] == 'weak-progress'
+    event = get_runtime_events()[-1]
+    assert event.event_type == 'supervision.task_changed'
+    assert event.payload['failureClass'] == 'weak_progress'

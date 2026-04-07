@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from runtime.evidence.ledger import load_evidence_entries
 from runtime.evidence.ledger import record_task_evidence
 from runtime.events.bus import publish_runtime_event
 from runtime.failure.pipeline import route_failure
@@ -12,6 +13,7 @@ from runtime.failure.pipeline import route_failure
 from .heartbeat import emit_heartbeat_record
 
 JUDGE_HEARTBEAT_THRESHOLD = 300
+WEAK_PROGRESS_INTERVAL_LIMIT = 2
 
 
 def now_text() -> str:
@@ -77,9 +79,47 @@ def get_latest_heartbeat_time(root: Path, task_id: str):
     return None
 
 
-def judge_progress(task: dict, root: Path) -> dict:
+def build_progress_snapshot(task: dict, root: Path) -> dict:
+    task_id = task['taskId']
+    return {
+        'evidenceCount': len(load_evidence_entries(root, task_id)),
+        'testsCount': len(task.get('testsRun', []) or []),
+        'phase': str(task.get('phase', '') or ''),
+        'turnCount': int(task.get('turnCount', 0) or 0),
+    }
+
+
+def read_progress_snapshot(supervision: dict | None) -> dict:
+    supervision = supervision or {}
+    return {
+        'evidenceCount': int(supervision.get('lastEvidenceCount', 0) or 0),
+        'testsCount': int(supervision.get('lastTestsCount', 0) or 0),
+        'phase': str(supervision.get('lastPhase', '') or ''),
+        'turnCount': int(supervision.get('lastTurnCount', 0) or 0),
+    }
+
+
+def write_progress_snapshot(supervision: dict, snapshot: dict) -> None:
+    supervision['lastEvidenceCount'] = snapshot['evidenceCount']
+    supervision['lastTestsCount'] = snapshot['testsCount']
+    supervision['lastPhase'] = snapshot['phase']
+    supervision['lastTurnCount'] = snapshot['turnCount']
+
+
+def has_progress_delta(previous: dict, current: dict) -> bool:
+    if current['evidenceCount'] > previous['evidenceCount']:
+        return True
+    if current['testsCount'] > previous['testsCount']:
+        return True
+    if current['phase'] != previous['phase']:
+        return True
+    return False
+
+
+def judge_progress(task: dict, root: Path, supervision: dict | None = None) -> dict:
     failed_checks = []
     latest = task.get('latestResult', '').strip()
+    snapshot = build_progress_snapshot(task, root)
     if not latest or len(latest) < 5:
         failed_checks.append('empty-latest-result')
     hb_time = get_latest_heartbeat_time(root, task['taskId'])
@@ -87,9 +127,18 @@ def judge_progress(task: dict, root: Path) -> dict:
         age = time.time() - hb_time
         if age > JUDGE_HEARTBEAT_THRESHOLD:
             failed_checks.append('stale-heartbeat')
+    previous_snapshot = read_progress_snapshot(supervision)
+    if (
+        supervision
+        and snapshot['turnCount'] > previous_snapshot['turnCount']
+        and snapshot['evidenceCount'] == previous_snapshot['evidenceCount']
+        and snapshot['testsCount'] == previous_snapshot['testsCount']
+        and snapshot['phase'] == previous_snapshot['phase']
+    ):
+        failed_checks.append('weak-progress')
     if failed_checks:
-        return {'allowed': False, 'reason': failed_checks[0], 'checks': failed_checks}
-    return {'allowed': True, 'reason': 'ok', 'checks': []}
+        return {'allowed': False, 'reason': failed_checks[0], 'checks': failed_checks, 'snapshot': snapshot}
+    return {'allowed': True, 'reason': 'ok', 'checks': [], 'snapshot': snapshot}
 
 
 def run_handoff(root: Path, task: dict):
@@ -124,6 +173,8 @@ def handle_supervision_trigger(root: Path, task_id: str, trigger: str) -> dict:
         supervision['status'] = 'active'
         supervision['lastHeartbeatAt'] = now_text()
         supervision['stale'] = False
+        supervision['weakProgressCount'] = 0
+        write_progress_snapshot(supervision, build_progress_snapshot(task, root))
         emit_heartbeat_record(root, {
             'stage': f"lifecycle-{task.get('lifecycle', 'unknown')}",
             'currentTask': task['taskId'],
@@ -150,18 +201,20 @@ def handle_supervision_trigger(root: Path, task_id: str, trigger: str) -> dict:
         )
         append_log(supervisor_log, f"- {now_text()} | task={task_id} | trigger=on_task_ingested | status=active")
     elif trigger == 'on_task_changed':
-        verdict = judge_progress(task, root)
+        verdict = judge_progress(task, root, supervision)
         supervision['lastVerdict'] = verdict
         if not verdict['allowed']:
             failure_verdict = route_failure('supervision', verdict)
-            supervision['status'] = 'blocked-by-judge'
+            supervision['status'] = 'resume-prepared' if verdict['reason'] == 'weak-progress' else 'blocked-by-judge'
             supervision['blockReason'] = verdict['reason']
             supervision['lastFailureDecision'] = failure_verdict.to_dict()
+            supervision['weakProgressCount'] = supervision.get('weakProgressCount', 0) + 1
+            write_progress_snapshot(supervision, verdict.get('snapshot', build_progress_snapshot(task, root)))
             record_evidence(
                 root,
                 task_id,
-                'supervision-verdict',
-                'supervision verdict rejected task change',
+                'weak-progress' if verdict['reason'] == 'weak-progress' else 'supervision-verdict',
+                'supervision detected weak progress' if verdict['reason'] == 'weak-progress' else 'supervision verdict rejected task change',
                 {
                     'trigger': trigger,
                     'decision': 'reject',
@@ -181,12 +234,15 @@ def handle_supervision_trigger(root: Path, task_id: str, trigger: str) -> dict:
                     'checks': verdict['checks'],
                     'failureClass': failure_verdict.failure_class,
                     'decision': failure_verdict.decision,
+                    'status': supervision['status'],
                 },
             )
             append_log(supervisor_log, f"- {now_text()} | task={task_id} | trigger=on_task_changed | verdict=REJECT | reason={verdict['reason']}")
             raise SystemExit(f"supervisor judge rejected: {verdict['reason']}")
         supervision['status'] = task.get('supervisionState', 'active')
         supervision['lastHeartbeatAt'] = now_text()
+        supervision['weakProgressCount'] = 0
+        write_progress_snapshot(supervision, verdict.get('snapshot', build_progress_snapshot(task, root)))
         emit_heartbeat_record(root, {
             'stage': f"lifecycle-{task.get('lifecycle', 'unknown')}",
             'currentTask': task['taskId'],
@@ -247,9 +303,16 @@ def handle_supervision_trigger(root: Path, task_id: str, trigger: str) -> dict:
         )
         append_log(supervisor_log, f"- {now_text()} | task={task_id} | trigger=on_interruption_detected | action=resume")
     elif trigger == 'on_interval':
+        snapshot = build_progress_snapshot(task, root)
+        previous_snapshot = read_progress_snapshot(supervision)
+        progress_delta = has_progress_delta(previous_snapshot, snapshot)
+        weak_progress_count = 0 if progress_delta else int(supervision.get('weakProgressCount', 0) or 0) + 1
+
         supervision['status'] = supervision.get('status') or task.get('supervisionState', 'active')
         supervision['lastHeartbeatAt'] = now_text()
         supervision['stale'] = task.get('lifecycle') in {'blocked', 'waiting-human'}
+        supervision['weakProgressCount'] = weak_progress_count
+        write_progress_snapshot(supervision, snapshot)
         emit_heartbeat_record(root, {
             'stage': f"lifecycle-{task.get('lifecycle', 'unknown')}",
             'currentTask': task['taskId'],
@@ -287,6 +350,34 @@ def handle_supervision_trigger(root: Path, task_id: str, trigger: str) -> dict:
             supervision['lastFailureDecision'] = failure_verdict.to_dict()
             append_log(stalled_log, f"- {now_text()} | task={task_id} | lifecycle={task.get('lifecycle', 'unknown')} | stale=true")
             append_log(missed_log, f"- {now_text()} | task={task_id} | reason=blocked-or-waiting-human")
+        elif weak_progress_count >= WEAK_PROGRESS_INTERVAL_LIMIT:
+            failure_verdict = route_failure('supervision', {'allowed': False, 'reason': 'weak-progress', 'checks': ['weak-progress']})
+            supervision['status'] = 'resume-prepared'
+            supervision['blockReason'] = 'weak-progress'
+            supervision['lastFailureDecision'] = failure_verdict.to_dict()
+            record_evidence(
+                root,
+                task_id,
+                'weak-progress',
+                'supervision interval detected weak progress',
+                {
+                    'trigger': trigger,
+                    'weakProgressCount': weak_progress_count,
+                    'failureClass': failure_verdict.failure_class,
+                },
+            )
+            publish_runtime_event(
+                'supervision.interval_tick',
+                task_id,
+                'interval',
+                {
+                    'stale': False,
+                    'status': supervision['status'],
+                    'failureClass': failure_verdict.failure_class,
+                    'decision': failure_verdict.decision,
+                },
+            )
+            append_log(stalled_log, f"- {now_text()} | task={task_id} | reason=weak-progress | count={weak_progress_count}")
     elif trigger == 'on_completion':
         supervision['status'] = 'handoff-prepared'
         supervision['lastHandoffAt'] = now_text()

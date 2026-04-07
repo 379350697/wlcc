@@ -10,6 +10,7 @@ FAILURE_DECISIONS = {
     'none': ('accept', False, False),
     'content_weak': ('retry_same_step', True, False),
     'evidence_insufficient': ('degrade_continue', True, False),
+    'weak_progress': ('prepare_resume', False, True),
     'risk_blocked': ('freeze_task', False, True),
     'manual_intervention_required': ('escalate_human', False, True),
     'resume_required': ('prepare_resume', False, True),

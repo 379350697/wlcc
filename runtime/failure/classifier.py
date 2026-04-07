@@ -45,6 +45,8 @@ def classify_supervision_failure(verdict: dict[str, Any]) -> str:
         return 'none'
     reason = verdict.get('reason', '')
     checks = set(verdict.get('checks', []))
+    if reason == 'weak-progress' or 'weak-progress' in checks:
+        return 'weak_progress'
     if reason == 'interruption-detected' or 'interruption-detected' in checks:
         return 'resume_required'
     if reason == 'stale-heartbeat' or 'stale-heartbeat' in checks:
