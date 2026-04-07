@@ -44,6 +44,17 @@ class TaskState:
     isPrimaryTrack: bool = False
     lifecycle: str = "legacy"
     title: str = ""
+    taskLevel: str = "leaf"
+    parentTaskId: str = ""
+    phase: str = "analyze"
+    doneWhen: list[str] = field(default_factory=list)
+    requiredEvidence: list[str] = field(default_factory=lambda: ["state-update"])
+    requiredTests: list[str] = field(default_factory=list)
+    allowedPaths: list[str] = field(default_factory=lambda: ["."])
+    forbiddenPaths: list[str] = field(default_factory=list)
+    maxTurns: int = 8
+    maxMinutes: int = 20
+    turnCount: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -69,4 +80,15 @@ class TaskState:
             "isPrimaryTrack": self.isPrimaryTrack,
             "lifecycle": self.lifecycle,
             "title": self.title,
+            "taskLevel": self.taskLevel,
+            "parentTaskId": self.parentTaskId,
+            "phase": self.phase,
+            "doneWhen": list(self.doneWhen),
+            "requiredEvidence": list(self.requiredEvidence),
+            "requiredTests": list(self.requiredTests),
+            "allowedPaths": list(self.allowedPaths),
+            "forbiddenPaths": list(self.forbiddenPaths),
+            "maxTurns": self.maxTurns,
+            "maxMinutes": self.maxMinutes,
+            "turnCount": self.turnCount,
         }

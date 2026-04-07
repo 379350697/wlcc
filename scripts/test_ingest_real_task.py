@@ -24,11 +24,19 @@ if not state_path.exists():
     issues.append('missing ingested canonical task')
 else:
     data = json.loads(state_path.read_text(encoding='utf-8'))
-    for key in ['kind', 'source', 'executionMode', 'ownerContext', 'supervisionState', 'eligibleForScheduling', 'isPrimaryTrack', 'lifecycle']:
+    for key in ['kind', 'source', 'executionMode', 'ownerContext', 'supervisionState', 'eligibleForScheduling', 'isPrimaryTrack', 'lifecycle', 'taskLevel', 'phase', 'doneWhen', 'requiredEvidence', 'allowedPaths', 'maxTurns', 'maxMinutes', 'turnCount']:
         if key not in data:
             issues.append(f'missing field: {key}')
     if data.get('kind') != 'real':
         issues.append('kind should be real')
+    if data.get('taskLevel') != 'leaf':
+        issues.append('taskLevel should default to leaf')
+    if data.get('phase') != 'analyze':
+        issues.append('phase should default to analyze')
+    if data.get('allowedPaths') != ['.']:
+        issues.append('allowedPaths should default to [.]')
+    if data.get('requiredEvidence') != ['state-update']:
+        issues.append('requiredEvidence should default to [state-update]')
 
 supervision_path = root / '.agent' / 'state' / 'supervision' / 'real-真实任务接管机制层-p0-启动任务.json'
 if not supervision_path.exists():

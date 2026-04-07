@@ -3,6 +3,7 @@ from pathlib import Path
 
 from runtime.common.io import read_json, write_json
 from runtime.common.models import TaskState
+from runtime.contracts.task_contract import normalize_contract_dict, validate_contract_dict
 from runtime.common.paths import RuntimePaths
 
 
@@ -18,6 +19,10 @@ def validate_task_state(task: TaskState) -> None:
         raise SystemExit(f"invalid priority: {task.priority}")
     if task.override not in ALLOWED_OVERRIDE:
         raise SystemExit(f"invalid override: {task.override}")
+    if task.kind == "real":
+        verdict = validate_contract_dict(task.to_dict())
+        if not verdict.passed:
+            raise SystemExit(f"invalid task contract: {verdict.reason}")
 
 
 def task_state_path(paths: RuntimePaths, task_id: str) -> Path:
@@ -62,4 +67,5 @@ def load_task_state(paths: RuntimePaths, task_id: str) -> dict:
     task = read_json(task_path, None)
     if task is None:
         raise SystemExit(f"missing task: {task_id}")
+    task.update(normalize_contract_dict(task))
     return task

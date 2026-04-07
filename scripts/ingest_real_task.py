@@ -10,6 +10,7 @@ if str(root) not in sys.path:
 
 from runtime.common.io import write_json
 from runtime.common.models import TaskState
+from runtime.contracts.task_contract import normalize_contract_dict
 from runtime.common.paths import RuntimePaths
 from runtime.common.time import now_iso
 from runtime.resume.service import write_resume_output
@@ -35,12 +36,39 @@ def main():
     parser.add_argument('--execution-mode', default='live')
     parser.add_argument('--project-root', default=str(root))
     parser.add_argument('--task-id')
+    parser.add_argument('--task-level', default='leaf')
+    parser.add_argument('--parent-task-id', default='')
+    parser.add_argument('--phase', default='analyze')
+    parser.add_argument('--done-when', action='append', default=[])
+    parser.add_argument('--required-evidence', action='append', default=[])
+    parser.add_argument('--required-test', action='append', default=[])
+    parser.add_argument('--allowed-path', action='append', default=[])
+    parser.add_argument('--forbidden-path', action='append', default=[])
+    parser.add_argument('--max-turns', type=int, default=8)
+    parser.add_argument('--max-minutes', type=int, default=20)
     args = parser.parse_args()
 
     project_root = Path(args.project_root)
     paths = RuntimePaths(project_root)
     task_id = args.task_id or f"real-{slugify(args.title)}"
     updated_at = now_iso()
+    contract = normalize_contract_dict({
+        'taskLevel': args.task_level,
+        'parentTaskId': args.parent_task_id,
+        'phase': args.phase,
+        'doneWhen': args.done_when or [
+            'required evidence recorded',
+            'required tests passed',
+            'state archived',
+        ],
+        'requiredEvidence': args.required_evidence or ['state-update'],
+        'requiredTests': args.required_test,
+        'allowedPaths': args.allowed_path or ['.'],
+        'forbiddenPaths': args.forbidden_path,
+        'maxTurns': args.max_turns,
+        'maxMinutes': args.max_minutes,
+        'turnCount': 0,
+    })
 
     task = TaskState(
         taskId=task_id,
@@ -65,6 +93,17 @@ def main():
         isPrimaryTrack=True,
         lifecycle='ingested',
         title=args.title,
+        taskLevel=contract['taskLevel'],
+        parentTaskId=contract['parentTaskId'],
+        phase=contract['phase'],
+        doneWhen=contract['doneWhen'],
+        requiredEvidence=contract['requiredEvidence'],
+        requiredTests=contract['requiredTests'],
+        allowedPaths=contract['allowedPaths'],
+        forbiddenPaths=contract['forbiddenPaths'],
+        maxTurns=contract['maxTurns'],
+        maxMinutes=contract['maxMinutes'],
+        turnCount=contract['turnCount'],
     )
     task_path, index_path = write_task_state(paths, task)
 
@@ -101,6 +140,10 @@ def main():
     lines.append('- lifecycle: ingested')
     lines.append('- eligibleForScheduling: true')
     lines.append('- isPrimaryTrack: true')
+    lines.append(f"- taskLevel: {contract['taskLevel']}")
+    lines.append(f"- phase: {contract['phase']}")
+    lines.append(f"- allowedPaths: {', '.join(contract['allowedPaths'])}")
+    lines.append(f"- requiredEvidence: {', '.join(contract['requiredEvidence'])}")
     out.write_text('\n'.join(lines) + '\n', encoding='utf-8')
     print(f'OK: taskId {task_id}')
     print(f'OK: wrote {task_path}')
