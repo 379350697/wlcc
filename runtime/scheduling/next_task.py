@@ -65,6 +65,8 @@ def normalize_task(task: dict, done_ids: set[str]) -> dict:
     dependencies = task.get('dependencies', [])
     override = task.get('override', 'none')
     kind = task.get('kind', 'sample')
+    task_level = task.get('taskLevel', 'leaf')
+    phase = task.get('phase', 'analyze')
     execution_mode = task.get('executionMode', 'live')
     eligible = task.get('eligibleForScheduling', True)
     primary = task.get('isPrimaryTrack', False)
@@ -82,6 +84,8 @@ def normalize_task(task: dict, done_ids: set[str]) -> dict:
         'dependencies': dependencies,
         'override': override,
         'kind': kind,
+        'taskLevel': task_level,
+        'phase': phase,
         'executionMode': execution_mode,
         'eligibleForScheduling': eligible,
         'isPrimaryTrack': primary,
@@ -98,6 +102,37 @@ def build_next_task_payload(tasks: list[dict]) -> dict:
 def choose_next_task(tasks: list[dict]) -> dict:
     done_ids = {t['taskId'] for t in tasks if t.get('status') == 'done'}
     normalized = [normalize_task(t, done_ids) for t in tasks]
+
+    open_leaf = sorted(
+        [
+            t for t in normalized
+            if t.get('taskLevel') == 'leaf'
+            and t['status'] in {'doing', 'blocked'}
+            and t['override'] != 'force-hold'
+            and t.get('eligibleForScheduling', False)
+            and t.get('executionMode', 'sample-only') != 'sample-only'
+        ],
+        key=lambda t: (
+            0 if t.get('kind') == 'real' else 1,
+            0 if t.get('isPrimaryTrack') else 1,
+            PRIORITY_ORDER.get(t['priority'], 99),
+            -_sort_time_rank(t.get('updatedAt', '')),
+        ),
+    )
+    if open_leaf:
+        current = open_leaf[0]
+        blocked = current['status'] == 'blocked'
+        return {
+            'decisionType': 'blocked-current-leaf' if blocked else 'continue-current-leaf',
+            'nextTaskId': current['taskId'],
+            'selectedPriority': current['priority'],
+            'dependencyStatus': 'satisfied' if current['dependencySatisfied'] else 'unsatisfied',
+            'overrideStatus': current['override'],
+            'reason': '存在未收口的 leaf task，禁止切换到 sibling 或 parent。',
+            'nextAction': '等待当前 leaf task 收口。' if not blocked else '等待当前 leaf task 解除阻塞。',
+            'currentTask': current['taskId'],
+            'currentStatus': current['status'],
+        }
 
     force_run = [t for t in normalized if t['override'] == 'force-run']
     if force_run:

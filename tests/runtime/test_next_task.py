@@ -25,6 +25,8 @@ def test_choose_next_task_accepts_iso_updated_at():
             'dependencies': [],
             'override': 'none',
             'kind': 'real',
+            'taskLevel': 'leaf',
+            'phase': 'implement',
             'executionMode': 'live',
             'eligibleForScheduling': True,
             'isPrimaryTrack': True,
@@ -37,6 +39,8 @@ def test_choose_next_task_accepts_iso_updated_at():
             'dependencies': [],
             'override': 'none',
             'kind': 'sample',
+            'taskLevel': 'leaf',
+            'phase': 'analyze',
             'executionMode': 'sample-only',
             'eligibleForScheduling': False,
             'isPrimaryTrack': False,
@@ -47,7 +51,7 @@ def test_choose_next_task_accepts_iso_updated_at():
     result = choose_next_task(tasks)
 
     assert result['nextTaskId'] == 'real-task'
-    assert result['decisionType'] == 'continue-current'
+    assert result['decisionType'] == 'continue-current-leaf'
 
 
 def test_build_next_task_from_state_dir_writes_state_and_view(tmp_path: Path):
@@ -66,6 +70,8 @@ def test_build_next_task_from_state_dir_writes_state_and_view(tmp_path: Path):
             '  "dependencies": [],',
             '  "override": "none",',
             '  "kind": "real",',
+            '  "taskLevel": "leaf",',
+            '  "phase": "implement",',
             '  "executionMode": "live",',
             '  "eligibleForScheduling": true,',
             '  "isPrimaryTrack": true,',
