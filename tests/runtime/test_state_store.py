@@ -70,3 +70,22 @@ def test_resolve_task_id_accepts_bare_real_task_alias(tmp_path: Path):
     assert resolve_task_id(paths, "task-3") == "real-task-3"
     loaded = load_task_state(paths, "task-3")
     assert loaded["taskId"] == "real-task-3"
+
+
+def test_write_task_state_recovers_from_corrupted_index(tmp_path: Path):
+    paths = RuntimePaths(tmp_path)
+    paths.state_dir.mkdir(parents=True, exist_ok=True)
+    paths.index_path.write_text('{"tasks": ["broken"], "updatedAt": "2026-04-07T00:00:00"}\n}\n', encoding='utf-8')
+
+    task = TaskState(
+        taskId="task-4",
+        project="demo",
+        goal="repair corrupted index",
+        status="doing",
+        updatedAt="2026-04-07T12:00:00",
+    )
+
+    _, index_path = write_task_state(paths, task)
+
+    loaded_index = index_path.read_text(encoding='utf-8')
+    assert '"task-4"' in loaded_index

@@ -50,8 +50,11 @@ def write_task_state(paths: RuntimePaths, task: TaskState) -> tuple[Path, Path]:
     write_json(task_path, task.to_dict())
 
     index_path = paths.index_path
-    index = read_json(index_path, None)
-    if index is None:
+    try:
+        index = read_json(index_path, None)
+    except json.JSONDecodeError:
+        index = None
+    if not isinstance(index, dict) or not isinstance(index.get("tasks"), list):
         index = {"tasks": [], "updatedAt": task.updatedAt}
 
     if task.taskId not in index["tasks"]:
