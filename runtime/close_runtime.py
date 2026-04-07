@@ -6,6 +6,7 @@ from runtime.common.io import read_json, write_json
 from runtime.common.paths import RuntimePaths
 from runtime.common.time import now_iso
 from runtime.contracts.task_contract import normalize_contract_dict
+from runtime.flow.store import ensure_task_flow, recompute_flow
 from runtime.gates.completion import evaluate_completion_gate
 from runtime.scheduling.next_task import build_next_task_from_state_dir, write_state_views
 from runtime.state.lifecycle import transition_lifecycle
@@ -39,15 +40,20 @@ def apply_close_update(root: Path, task_id: str, *, final_result: str) -> dict:
 
     task["latestResult"] = final_result
     task["status"] = "closed"
+    task["finalReplyEligible"] = True
     task["blocker"] = "无"
     task["nextStep"] = "archive"
     task["phase"] = "done"
     task["updatedAt"] = now_iso()
     write_json(task_path, task)
+    if task.get("taskFlowId"):
+        ensure_task_flow(paths, task)
 
     handle_supervision_trigger(root, resolved_task_id, "on_completion")
     transition_lifecycle(paths, resolved_task_id, "closed")
     updated_task, _, _ = transition_lifecycle(paths, resolved_task_id, "archived")
+    if updated_task.get("taskFlowId"):
+        recompute_flow(paths, str(updated_task["taskFlowId"]))
     build_next_task_from_state_dir(
         paths.tasks_state_dir,
         paths.state_dir / "next-task.json",

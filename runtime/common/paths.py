@@ -19,10 +19,13 @@ class RuntimePaths:
         return self.state_dir / "tasks"
 
     @property
+    def flows_state_dir(self) -> Path:
+        return self.state_dir / "flows"
+
+    @property
     def supervision_state_dir(self) -> Path:
         return self.state_dir / "supervision"
 
     @property
     def index_path(self) -> Path:
         return self.state_dir / "index.json"
-

@@ -192,6 +192,20 @@ def choose_next_task(tasks: list[dict]) -> dict:
             'currentStatus': 'done',
         }
 
+    recent_closed = sorted(
+        [
+            t for t in normalized
+            if t.get('taskFlowId')
+            and (t.get('status') in CLOSED_STATUSES or t.get('lifecycle') in {'archived', 'closed'})
+        ],
+        key=lambda t: (
+            0 if t.get('kind') == 'real' else 1,
+            0 if t.get('isPrimaryTrack') else 1,
+            -_sort_time_rank(t.get('updatedAt', '')),
+        ),
+    )
+    recent_flow_id = recent_closed[0].get('taskFlowId') if recent_closed else None
+
     sorted_active = sorted(
         active,
         key=lambda t: (
@@ -199,6 +213,7 @@ def choose_next_task(tasks: list[dict]) -> dict:
             0 if t.get('isPrimaryTrack') else 1,
             PRIORITY_ORDER.get(t['priority'], 99),
             STATUS_ORDER.get(t['status'], 99),
+            0 if recent_flow_id and t.get('taskFlowId') == recent_flow_id else 1,
             -_sort_time_rank(t.get('updatedAt', '')),
         ),
     )

@@ -16,6 +16,8 @@ def test_write_task_state_creates_index_and_task(tmp_path: Path):
         goal="do thing",
         status="doing",
         updatedAt="2026-04-06T12:00:00",
+        taskFlowId="flow-1",
+        ownerSessionId="session-123",
     )
 
     task_path, index_path = write_task_state(paths, task)
@@ -27,6 +29,8 @@ def test_write_task_state_creates_index_and_task(tmp_path: Path):
     assert loaded["status"] == "doing"
     assert loaded["updatedAt"] == "2026-04-06T12:00:00"
     assert loaded["eligibleForScheduling"] is False
+    assert loaded["taskFlowId"] == "flow-1"
+    assert loaded["ownerSessionId"] == "session-123"
 
 
 def test_transition_lifecycle_updates_task_and_supervision(tmp_path: Path):

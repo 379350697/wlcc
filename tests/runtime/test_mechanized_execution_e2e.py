@@ -5,10 +5,14 @@ from pathlib import Path
 
 import pytest
 
+from runtime.common.paths import RuntimePaths
 from runtime.close_runtime import apply_close_update
 from runtime.decomposition.models import LeafBundle
 from runtime.decomposition.promotion import promote_leaf_bundle
+from runtime.flow.store import load_task_flow
 from runtime.progress_runtime import apply_progress_update
+from runtime.reply.exit_gate import evaluate_reply_exit_gate
+from runtime.state.store import load_task_state
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -70,6 +74,17 @@ def test_mechanized_execution_e2e_releases_next_leaf_only_after_closed(tmp_path:
     _ingest_leaf(tmp_path, first_ready.leaf)
     _ingest_leaf(tmp_path, second_ready.leaf)
 
+    paths = RuntimePaths(tmp_path)
+    preclose_task = load_task_state(paths, "leaf-1")
+    preclose_flow = load_task_flow(paths, "task-parent")
+    preclose_verdict = evaluate_reply_exit_gate(
+        task=preclose_task,
+        flow=preclose_flow,
+        payload={"replyKind": "final"},
+    )
+    assert preclose_verdict["allowed"] is False
+    assert preclose_verdict["decision"] == "reject-open-leaf"
+
     with pytest.raises(SystemExit, match="completion gate"):
         apply_close_update(tmp_path, "leaf-1", final_result="should fail before closure artifacts")
 
@@ -91,6 +106,17 @@ def test_mechanized_execution_e2e_releases_next_leaf_only_after_closed(tmp_path:
 
     assert closed["task"]["lifecycle"] == "archived"
     assert closed["task"]["eligibleForScheduling"] is False
+    assert closed["task"]["finalReplyEligible"] is True
+
+    postclose_task = load_task_state(paths, "leaf-1")
+    postclose_flow = load_task_flow(paths, "task-parent")
+    postclose_verdict = evaluate_reply_exit_gate(
+        task=postclose_task,
+        flow=postclose_flow,
+        payload={"replyKind": "final"},
+    )
+    assert postclose_verdict["allowed"] is True
+    assert postclose_verdict["decision"] == "allow-final-reply"
 
     next_task_path = tmp_path / ".agent" / "state" / "next-task.json"
     next_task = json.loads(next_task_path.read_text(encoding="utf-8"))

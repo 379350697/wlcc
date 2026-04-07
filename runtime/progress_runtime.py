@@ -7,6 +7,7 @@ from runtime.common.paths import RuntimePaths
 from runtime.common.time import now_iso
 from runtime.contracts.task_contract import normalize_contract_dict
 from runtime.evidence.ledger import record_progress_entries
+from runtime.flow.store import ensure_task_flow, recompute_flow
 from runtime.gates.delivery import evaluate_delivery_gate
 from runtime.gates.progress import evaluate_progress_gate
 from runtime.state.store import resolve_task_id
@@ -78,6 +79,7 @@ def apply_progress_update(
     candidate["changedFiles"] = list(changed_files)
     candidate["testsRun"] = list(tests_run)
     candidate["evidenceIds"] = list(evidence_ids)
+    candidate["finalReplyEligible"] = False
     if status:
         candidate["status"] = status
     candidate["lifecycle"] = _derive_lifecycle(candidate, status, phase)
@@ -94,6 +96,9 @@ def apply_progress_update(
         raise SystemExit(f"supervisor precheck rejected: {precheck['reason']}")
 
     write_json(task_path, candidate)
+    if candidate.get("taskFlowId"):
+        ensure_task_flow(paths, candidate)
+        recompute_flow(paths, str(candidate["taskFlowId"]))
     record_progress_entries(
         root,
         resolved_task_id,

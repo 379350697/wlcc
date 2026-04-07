@@ -16,8 +16,49 @@ def _load_tasks_from_state_dir(state_dir: Path) -> list[dict]:
     return tasks
 
 
+def _load_flows_from_state_dir(state_dir: Path) -> list[dict]:
+    flows = []
+    if not state_dir.exists():
+        return flows
+    for path in sorted(state_dir.glob("*.json")):
+        flows.append(json.loads(path.read_text(encoding="utf-8")))
+    return flows
+
+
+def render_flow_md(flow: dict, tasks: list[dict]) -> str:
+    owned = [task for task in tasks if task.get("taskFlowId") == flow.get("taskFlowId")]
+    task_ids = ", ".join(task.get("taskId", "") for task in owned) or "[]"
+    return "\n".join(
+        [
+            "# Task Flow",
+            "",
+            f"- taskFlowId: {flow.get('taskFlowId', '')}",
+            f"- ownerSessionId: {flow.get('ownerSessionId', '')}",
+            f"- status: {flow.get('status', 'draft')}",
+            f"- currentLeafTaskId: {flow.get('currentLeafTaskId', '')}",
+            f"- openLeafCount: {flow.get('openLeafCount', 0)}",
+            f"- closedLeafCount: {flow.get('closedLeafCount', 0)}",
+            f"- replyMode: {flow.get('replyMode', 'restricted')}",
+            f"- tasks: {task_ids}",
+            "",
+        ]
+    )
+
+
+def _write_flow_views(flow_output_dir: Path, flows: list[dict], tasks: list[dict]) -> list[Path]:
+    written: list[Path] = []
+    flow_output_dir.mkdir(parents=True, exist_ok=True)
+    for flow in flows:
+        flow_path = flow_output_dir / f"{flow['taskFlowId']}.md"
+        flow_path.write_text(render_flow_md(flow, tasks), encoding="utf-8")
+        written.append(flow_path)
+    return written
+
+
 def write_state_views(state_dir: Path, task_output_dir: Path, resume_output_dir: Path, tasks_view_path: Path) -> list[Path]:
     tasks = _load_tasks_from_state_dir(state_dir)
+    flows_state_dir = state_dir.parent / "flows"
+    flows = _load_flows_from_state_dir(flows_state_dir)
     written: list[Path] = []
     task_output_dir.mkdir(parents=True, exist_ok=True)
     resume_output_dir.mkdir(parents=True, exist_ok=True)
@@ -27,6 +68,8 @@ def write_state_views(state_dir: Path, task_output_dir: Path, resume_output_dir:
         task_path.write_text(render_task_md(task), encoding="utf-8")
         resume_path.write_text(render_resume_md(task), encoding="utf-8")
         written.extend([task_path, resume_path])
+    flow_output_dir = task_output_dir.parent / "flows"
+    written.extend(_write_flow_views(flow_output_dir, flows, tasks))
     tasks_view_path.write_text(render_tasks_summary(tasks), encoding="utf-8")
     written.append(tasks_view_path)
     return written
@@ -49,6 +92,8 @@ def render_state_views_for_root(root: Path, task_id: str | None = None) -> list[
     task = read_json(target, None)
     if task is None:
         raise SystemExit(f"missing task state: {target}")
+    flows_state_dir = root / ".agent" / "state" / "flows"
+    flows = _load_flows_from_state_dir(flows_state_dir)
     tasks_dir.mkdir(parents=True, exist_ok=True)
     resume_dir.mkdir(parents=True, exist_ok=True)
     task_md = tasks_dir / f"{task_id}.md"
@@ -56,8 +101,13 @@ def render_state_views_for_root(root: Path, task_id: str | None = None) -> list[
     task_md.write_text(render_task_md(task), encoding="utf-8")
     resume_md.write_text(render_resume_md(task), encoding="utf-8")
     all_tasks = [read_json(path, {}) for path in task_files]
+    flow_output_dir = root / ".agent" / "flows"
+    written = [task_md, resume_md]
+    if flows:
+        written.extend(_write_flow_views(flow_output_dir, flows, all_tasks))
     tasks_md.write_text(render_tasks_summary(all_tasks), encoding="utf-8")
-    return [task_md, resume_md, tasks_md]
+    written.append(tasks_md)
+    return written
 
 
 def check_state_view_consistency(root: Path) -> tuple[list[str], Path]:
@@ -84,6 +134,18 @@ def check_state_view_consistency(root: Path) -> tuple[list[str], Path]:
             text = resume_md.read_text(encoding="utf-8")
             if render_resume_md(task).strip() != text.strip():
                 issues.append(f"{task_id}: resume markdown mismatch")
+
+    flows_state_dir = root / ".agent" / "state" / "flows"
+    all_flows = _load_flows_from_state_dir(flows_state_dir)
+    for flow in all_flows:
+        flow_id = flow["taskFlowId"]
+        flow_md = root / ".agent" / "flows" / f"{flow_id}.md"
+        if not flow_md.exists():
+            issues.append(f"{flow_id}: missing flow markdown view")
+        else:
+            text = flow_md.read_text(encoding="utf-8")
+            if render_flow_md(flow, all_tasks).strip() != text.strip():
+                issues.append(f"{flow_id}: flow markdown mismatch")
 
     tasks_view = root / "TASKS.md"
     if not tasks_view.exists():

@@ -46,6 +46,8 @@ class TaskState:
     title: str = ""
     taskLevel: str = "leaf"
     parentTaskId: str = ""
+    taskFlowId: str = ""
+    ownerSessionId: str = ""
     phase: str = "analyze"
     doneWhen: list[str] = field(default_factory=list)
     requiredEvidence: list[str] = field(default_factory=lambda: ["state-update"])
@@ -59,6 +61,7 @@ class TaskState:
     estimatedTurns: int = 0
     estimatedMinutes: int = 0
     splitConfidence: float = 0.0
+    finalReplyEligible: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -86,6 +89,8 @@ class TaskState:
             "title": self.title,
             "taskLevel": self.taskLevel,
             "parentTaskId": self.parentTaskId,
+            "taskFlowId": self.taskFlowId,
+            "ownerSessionId": self.ownerSessionId,
             "phase": self.phase,
             "doneWhen": list(self.doneWhen),
             "requiredEvidence": list(self.requiredEvidence),
@@ -99,4 +104,5 @@ class TaskState:
             "estimatedTurns": self.estimatedTurns,
             "estimatedMinutes": self.estimatedMinutes,
             "splitConfidence": self.splitConfidence,
+            "finalReplyEligible": self.finalReplyEligible,
         }

@@ -15,6 +15,7 @@ from runtime.common.time import now_iso
 from runtime.contracts.task_contract import validate_contract_dict
 from runtime.decomposition.judge import judge_leaf_bundle
 from runtime.decomposition.models import LeafBundle
+from runtime.flow.store import ensure_task_flow, recompute_flow
 from runtime.resume.service import write_resume_output
 from runtime.scheduling.next_task import build_next_task_from_state_dir, write_state_views
 from runtime.state.lifecycle import transition_lifecycle
@@ -73,6 +74,7 @@ def main():
         title=leaf.goal,
         taskLevel="leaf",
         parentTaskId=leaf.parentTaskId,
+        taskFlowId=leaf.parentTaskId,
         phase="analyze",
         doneWhen=leaf.doneWhen,
         requiredEvidence=leaf.requiredEvidence,
@@ -88,6 +90,7 @@ def main():
         splitConfidence=leaf.splitConfidence,
     )
     task_path, index_path = write_task_state(paths, task)
+    ensure_task_flow(paths, task.to_dict())
 
     supervision_path = paths.supervision_state_dir / f"{leaf.taskId}.json"
     write_json(
@@ -112,6 +115,7 @@ def main():
     write_state_views(paths.tasks_state_dir, paths.agent_dir / "tasks", paths.agent_dir / "resume", project_root / "TASKS.md")
     write_resume_output(project_root, leaf.taskId)
     transition_lifecycle(paths, leaf.taskId, "ready")
+    recompute_flow(paths, leaf.parentTaskId)
 
     out = project_root / "tests" / "INGEST_DECOMPOSED_LEAF_RESULT.md"
     out.parent.mkdir(parents=True, exist_ok=True)

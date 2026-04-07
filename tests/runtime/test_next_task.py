@@ -127,3 +127,114 @@ def test_choose_next_task_only_releases_next_leaf_after_closed_status():
 
     assert result['nextTaskId'] == 'leaf-next'
     assert result['decisionType'] == 'switch-next'
+
+
+def test_choose_next_task_prefers_next_leaf_in_same_flow_after_closure():
+    tasks = [
+        {
+            'taskId': 'leaf-current',
+            'status': 'closed',
+            'lifecycle': 'archived',
+            'taskFlowId': 'flow-1',
+            'priority': 'P0',
+            'dependencies': [],
+            'override': 'none',
+            'kind': 'real',
+            'taskLevel': 'leaf',
+            'phase': 'done',
+            'executionMode': 'live',
+            'eligibleForScheduling': False,
+            'isPrimaryTrack': True,
+            'updatedAt': '2026-04-06T21:17:52',
+        },
+        {
+            'taskId': 'leaf-next-same-flow',
+            'status': 'ready',
+            'taskFlowId': 'flow-1',
+            'priority': 'P0',
+            'dependencies': [],
+            'override': 'none',
+            'kind': 'real',
+            'taskLevel': 'leaf',
+            'phase': 'analyze',
+            'executionMode': 'live',
+            'eligibleForScheduling': True,
+            'isPrimaryTrack': True,
+            'updatedAt': '2026-04-06T21:18:00',
+        },
+        {
+            'taskId': 'leaf-other-flow',
+            'status': 'ready',
+            'taskFlowId': 'flow-2',
+            'priority': 'P0',
+            'dependencies': [],
+            'override': 'none',
+            'kind': 'real',
+            'taskLevel': 'leaf',
+            'phase': 'analyze',
+            'executionMode': 'live',
+            'eligibleForScheduling': True,
+            'isPrimaryTrack': True,
+            'updatedAt': '2026-04-06T21:19:00',
+        },
+    ]
+
+    result = choose_next_task(tasks)
+
+    assert result['nextTaskId'] == 'leaf-next-same-flow'
+    assert result['decisionType'] == 'switch-next'
+
+
+def test_choose_next_task_does_not_override_higher_priority_other_flow_for_same_flow_preference():
+    tasks = [
+        {
+            'taskId': 'leaf-current',
+            'status': 'closed',
+            'lifecycle': 'archived',
+            'taskFlowId': 'flow-1',
+            'priority': 'P1',
+            'dependencies': [],
+            'override': 'none',
+            'kind': 'real',
+            'taskLevel': 'leaf',
+            'phase': 'done',
+            'executionMode': 'live',
+            'eligibleForScheduling': False,
+            'isPrimaryTrack': True,
+            'updatedAt': '2026-04-06T21:17:52',
+        },
+        {
+            'taskId': 'leaf-next-same-flow',
+            'status': 'ready',
+            'taskFlowId': 'flow-1',
+            'priority': 'P1',
+            'dependencies': [],
+            'override': 'none',
+            'kind': 'real',
+            'taskLevel': 'leaf',
+            'phase': 'analyze',
+            'executionMode': 'live',
+            'eligibleForScheduling': True,
+            'isPrimaryTrack': True,
+            'updatedAt': '2026-04-06T21:18:00',
+        },
+        {
+            'taskId': 'leaf-other-flow-higher-priority',
+            'status': 'ready',
+            'taskFlowId': 'flow-2',
+            'priority': 'P0',
+            'dependencies': [],
+            'override': 'none',
+            'kind': 'real',
+            'taskLevel': 'leaf',
+            'phase': 'analyze',
+            'executionMode': 'live',
+            'eligibleForScheduling': True,
+            'isPrimaryTrack': True,
+            'updatedAt': '2026-04-06T21:19:00',
+        },
+    ]
+
+    result = choose_next_task(tasks)
+
+    assert result['nextTaskId'] == 'leaf-other-flow-higher-priority'

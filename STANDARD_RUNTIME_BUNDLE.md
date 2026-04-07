@@ -25,6 +25,7 @@
 - `.agent/NEXT_TASK.md`
 - `.agent/tasks/*.md`
 - `.agent/resume/*.md`
+- `.agent/flows/*.md`
 - `TASKS.md`
 - `.agent/heartbeat/heartbeat-summary.json`
 - `.agent/audit/observability-dashboard.json`
@@ -48,6 +49,8 @@
 - `runtime/evidence/`
 - `runtime/events/`
 - `runtime/failure/`
+- `runtime/flow/`
+- `runtime/reply/`
 - `runtime/state/`
 - `runtime/scheduling/`
 - `runtime/resume/`
@@ -69,6 +72,7 @@
 - `scripts/build_next_task_from_state.py`
 - `scripts/delivery_gate.py`
 - `scripts/progress_reply_gate.py`
+- `scripts/check_reply_exit.py`
 - `scripts/evaluate_risk_policy.py`
 - `scripts/check_risk_level.py`
 - `scripts/run_task_supervision.py`
@@ -84,6 +88,7 @@
 
 ### 必需运行态
 - `.agent/state/tasks/`
+- `.agent/state/flows/`
 - `.agent/state/index.json`
 - `.agent/state/next-task.json`
 - `.agent/state/supervision/`
@@ -94,6 +99,7 @@
 ## 同步主链产物
 这些必须同步生成，不能降为 sidecar：
 - `.agent/state/tasks/*.json`
+- `.agent/state/flows/*.json`
 - `.agent/state/index.json`
 - `.agent/state/next-task.json`
 - supervision state
@@ -104,6 +110,7 @@
 - `.agent/NEXT_TASK.md`
 - `.agent/tasks/*.md`
 - `.agent/resume/*.md`
+- `.agent/flows/*.md`
 - `TASKS.md`
 - `.agent/heartbeat/heartbeat-summary.json`
 - `.agent/audit/observability-dashboard.json`
@@ -127,4 +134,5 @@ python3 scripts/verify_standard_runtime_bundle.py
 
 ## 说明
 - `next-task.json` 仍然是同步主链的一部分。
+- `reply exit gate` 与 `task flow` 现在是标准运行版的一等组成部分，不能只存在于 prompt 或外部约定里。
 - sidecar services 的目标是降低 OpenClaw 主链负担，而不是削弱执行增强能力。
