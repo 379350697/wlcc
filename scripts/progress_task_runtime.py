@@ -11,6 +11,7 @@ if str(root) not in sys.path:
 from runtime.common.io import read_json, write_json
 from runtime.common.paths import RuntimePaths
 from runtime.common.time import now_iso
+from runtime.contracts.task_contract import normalize_contract_dict
 from runtime.gates.delivery import evaluate_delivery_gate
 from runtime.gates.progress import evaluate_progress_gate
 from runtime.harness.task_harness import HarnessResult
@@ -28,6 +29,11 @@ def main():
     parser.add_argument('--blocker', default='无')
     parser.add_argument('--status')
     parser.add_argument('--lifecycle')
+    parser.add_argument('--phase')
+    parser.add_argument('--turn-delta', type=int, default=1)
+    parser.add_argument('--changed-file', action='append', default=[])
+    parser.add_argument('--test-run', action='append', default=[])
+    parser.add_argument('--evidence-id', action='append', default=[])
     args = parser.parse_args()
 
     paths = RuntimePaths(root)
@@ -36,6 +42,15 @@ def main():
     task = read_json(task_path, None)
     if task is None:
         raise SystemExit(f'missing task: {args.task_id}')
+    task.update(normalize_contract_dict(task))
+
+    changed_files = [item.strip() for item in args.changed_file if item.strip()]
+    tests_run = [item.strip() for item in args.test_run if item.strip()]
+    evidence_ids = [item.strip() for item in args.evidence_id if item.strip()]
+    if not changed_files and not tests_run and not evidence_ids:
+        raise SystemExit('[progress runtime] rejected: at least one changed-file, test-run, or evidence-id is required')
+    if args.turn_delta < 0:
+        raise SystemExit('[progress runtime] rejected: turn-delta must be non-negative')
 
     delivery_result = evaluate_delivery_gate(resolved_task_id, args.latest_result, root, task.get('kind', 'sample'))
     if not delivery_result['passed']:
@@ -49,6 +64,13 @@ def main():
     task['nextStep'] = args.next_step
     task['blocker'] = args.blocker
     task['updatedAt'] = now_iso()
+    task['phase'] = args.phase or task.get('phase', 'analyze')
+    task['turnCount'] = int(task.get('turnCount', 0)) + args.turn_delta
+    if task['turnCount'] > int(task.get('maxTurns', 8)):
+        raise SystemExit(f"[progress runtime] rejected: turn budget exceeded ({task['turnCount']}/{task.get('maxTurns', 8)})")
+    task['changedFiles'] = changed_files
+    task['testsRun'] = tests_run
+    task['evidenceIds'] = evidence_ids
     if args.status:
         task['status'] = args.status
     write_json(task_path, task)
@@ -79,8 +101,13 @@ def main():
     lines.append(f'- blocker: {args.blocker}')
     lines.append(f"- status: {final_task.get('status', 'unknown')}")
     lines.append(f"- lifecycle: {final_task.get('lifecycle', 'unknown')}")
+    lines.append(f"- phase: {final_task.get('phase', 'unknown')}")
+    lines.append(f"- turnCount: {final_task.get('turnCount', 0)}")
     lines.append('- gatesPassed: true')
     lines.append(f"- deliveryEvidence: {delivery_result['collected']}/{delivery_result['required']}")
+    lines.append(f"- changedFiles: {len(final_task.get('changedFiles', []))}")
+    lines.append(f"- testsRun: {len(final_task.get('testsRun', []))}")
+    lines.append(f"- evidenceIds: {len(final_task.get('evidenceIds', []))}")
     lines.append(f"- supervisionStatus: {supervision_changed.get('status', 'unknown')}")
     lines.append(f"- intervalStale: {str(supervision_interval.get('stale', False)).lower()}")
     lines.append(f"- harnessSuccess: {str(harness_result.success).lower()}")

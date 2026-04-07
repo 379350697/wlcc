@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import json
 import subprocess
+from uuid import uuid4
 from pathlib import Path
 
 root = Path(__file__).resolve().parent.parent
 out = root / 'tests' / 'CLOSE_TASK_RUNTIME_TEST_RESULT.md'
 issues = []
+task_id = f"real-close-runtime-final-target-{uuid4().hex[:8]}"
 
 # create dedicated close target
 subprocess.run([
@@ -15,13 +17,32 @@ subprocess.run([
     '--source', 'close-test',
     '--priority', 'P1',
     '--owner-context', 'test',
-    '--execution-mode', 'live'
+    '--execution-mode', 'live',
+    '--task-id', task_id,
 ], capture_output=True, text=True)
 
-task_id = 'real-close-runtime-final-target'
+fail = subprocess.run(['python3', str(root / 'scripts' / 'close_task_runtime.py'), '--task-id', task_id, '--final-result', '真实任务机制层 closure 已完成。'], capture_output=True, text=True)
+if fail.returncode == 0:
+    issues.append('close_task_runtime should reject incomplete task contract')
+
+progress = subprocess.run([
+    'python3', str(root / 'scripts' / 'progress_task_runtime.py'),
+    '--task-id', task_id,
+    '--latest-result', 'close runtime target 已补齐 state-update 并进入 verify。',
+    '--next-step', '执行 close_task_runtime 收口。',
+    '--blocker', '无',
+    '--status', 'doing',
+    '--lifecycle', 'active',
+    '--phase', 'verify',
+    '--evidence-id', 'state-update',
+    '--changed-file', 'scripts/close_task_runtime.py',
+], capture_output=True, text=True)
+if progress.returncode != 0:
+    issues.append('progress_task_runtime for close target failed')
+
 res = subprocess.run(['python3', str(root / 'scripts' / 'close_task_runtime.py'), '--task-id', task_id, '--final-result', '真实任务机制层 closure 已完成。'], capture_output=True, text=True)
 if res.returncode != 0:
-    issues.append('close_task_runtime failed')
+    issues.append('close_task_runtime failed after valid progress')
 
 state = root / '.agent' / 'state' / 'tasks' / f'{task_id}.json'
 if not state.exists():

@@ -11,6 +11,8 @@ if str(root) not in sys.path:
 from runtime.common.io import read_json, write_json
 from runtime.common.paths import RuntimePaths
 from runtime.common.time import now_iso
+from runtime.contracts.task_contract import normalize_contract_dict
+from runtime.gates.completion import evaluate_completion_gate
 from runtime.scheduling.next_task import build_next_task_from_state_dir, write_state_views
 from runtime.state.lifecycle import transition_lifecycle
 from runtime.state.store import resolve_task_id
@@ -29,8 +31,19 @@ def main():
     task = read_json(task_path, None)
     if task is None:
         raise SystemExit(f'missing task: {args.task_id}')
+    task.update(normalize_contract_dict(task))
     if task.get('kind') != 'real':
         raise SystemExit('close_task_runtime only supports kind=real')
+    if task.get('taskLevel') != 'leaf':
+        raise SystemExit('close_task_runtime only supports taskLevel=leaf')
+
+    completion_result = evaluate_completion_gate(task, {
+        'evidenceIds': task.get('evidenceIds', []),
+        'testsRun': task.get('testsRun', []),
+        'changedFiles': task.get('changedFiles', []),
+    })
+    if not completion_result['passed']:
+        raise SystemExit(f"[completion gate] rejected: {completion_result['reason']}")
 
     task['latestResult'] = args.final_result
     task['status'] = 'done'
@@ -61,6 +74,7 @@ def main():
     lines.append(f'- taskId: {resolved_task_id}')
     lines.append(f'- finalResult: {args.final_result}')
     lines.append('- archived: true')
+    lines.append('- completionGate: passed')
     lines.append('- harnessSuccess: true')
     lines.append('- harnessDuration: 0ms')
     out.write_text('\n'.join(lines) + '\n', encoding='utf-8')
